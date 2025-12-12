@@ -1,0 +1,19 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+
+# Large binaries / DLLs
+*.dll
+*.pdb
+
+# System files
+.DS_Store
+
+# Logs
+logs/

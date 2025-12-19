@@ -81,8 +81,10 @@ class Server:
             selected = random_selection(self.clients, frac=self.config['federation']['frac'])
             # broadcast
             self.broadcast_model()
-            # collect updates
-            updates = self.collect_updates(selected)
+            # collect updates (PASS round_id)
+            updates = []
+            for c in selected:
+                updates.append(c.local_update(round_id=r))
             # aggregate
             agg = self.aggregate(updates)
             # update global

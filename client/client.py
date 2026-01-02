@@ -47,7 +47,7 @@ class Client:
             epochs=self.model_cfg.get('local_epochs', 1)
         )
 
-        # 2️  Client-side XAI (optional)
+        # 2️  Client-side XAI 
         if self.model_cfg.get("enable_xai", False):
             from .xai_local import LocalXAI
 

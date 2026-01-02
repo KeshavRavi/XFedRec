@@ -1,15 +1,12 @@
-# server/selection.py
-"""
-Client selection strategies.
-"""
-
 import random
 
-def random_selection(clients, frac=0.5, seed=None):
+def random_selection(clients, frac):
     """
-    Randomly select fraction of clients.
+    Randomly select a fraction of clients.
+    Ensures at least one client is selected.
     """
-    if seed is not None:
-        random.seed(seed)
-    k = max(1, int(len(clients) * frac))
+    if clients is None or len(clients) == 0:
+        return []
+
+    k = max(1, int(frac * len(clients)))
     return random.sample(clients, k)

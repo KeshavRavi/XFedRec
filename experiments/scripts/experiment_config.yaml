@@ -2,22 +2,24 @@ data:
   movielens_path: "data/ml-100k.csv"
 
 model:
-  type: "ncf"  # options: ncf, transformer, fed_dae
+  type: "ncf"        # ncf, transformer, fed_dae
   n_users: 1000
   n_items: 1700
   emb_size: 32
+  local_epochs: 1
+  local_batch_size: 64
 
 federation:
   n_clients: 10
   frac: 0.5
   rounds: 5
-  local_epochs: 1
-  local_batch_size: 64
+
+  #  Milestone 3 controls
+  aggregation: median      # fedavg, median, krum, fedq
+  byzantine_clients: 1     # Number of malicious clients
+  max_update_norm: 5.0     # ← enables norm clipping
 
 dp:
   enabled: false
   sigma: 0.1
   clip_norm: 1.0
-
-aggregation:
-  method: "median"  # median, krum, fedq

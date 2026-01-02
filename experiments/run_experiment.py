@@ -22,7 +22,7 @@ from data.loader import dataset_to_user_item_lists, load_movielens_100k
 from data.partition import partition_by_user
 
 def load_config(path):
-    with open(path) as f:
+    with open(path,encoding='utf-8') as f:
         return yaml.safe_load(f)
 
 def build_clients_from_partitions(partitions, model_cfg, device='cpu'):

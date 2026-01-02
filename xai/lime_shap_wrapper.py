@@ -1,54 +1,51 @@
 # xai/lime_shap_wrapper.py
-"""
-Unified wrapper for LIME and SHAP explanations.
-"""
-
-import numpy as np
-import torch
 import shap
-from lime.lime_tabular import LimeTabularExplainer
+from lime import lime_tabular
+import numpy as np
 
-class XAIWrapper:
-    def __init__(self, model, feature_names, device="cpu"):
+class XAIExplainer:
+    """
+    Wrapper class for LIME and SHAP explanations.
+    Works for a client-side recommendation model.
+    """
+
+    def __init__(self, model, local_df, device='cpu'):
         self.model = model
-        self.feature_names = feature_names
+        self.local_df = local_df
         self.device = device
+        # Example: convert user/item to numpy matrix for explainer
+        self.X = self.local_df[['user_id','item_id']].values
 
-    def _predict_fn(self, x):
+    def predict(self, X):
         """
-        Prediction function for LIME/SHAP.
+        Accepts 2D numpy array [[user_id, item_id], ...] and returns predictions.
         """
-        x = torch.tensor(x, dtype=torch.long).to(self.device)
-        user_ids = x[:, 0]
-        item_ids = x[:, 1]
-        with torch.no_grad():
-            preds = self.model(user_ids, item_ids)
-        return preds.cpu().numpy()
+        import torch
+        self.model.eval()
+        preds = []
+        for row in X:
+            u = torch.tensor([int(row[0])], dtype=torch.long).to(self.device)
+            i = torch.tensor([int(row[1])], dtype=torch.long).to(self.device)
+            with torch.no_grad():
+                pred = self.model(u, i)
+            preds.append(pred.item())
+        return np.array(preds)
 
-    def explain_with_lime(self, background_data, instance, num_features=2):
-        """
-        Generate LIME explanation for a single instance.
-        """
-        explainer = LimeTabularExplainer(
-            background_data,
-            feature_names=self.feature_names,
-            mode="regression",
-            discretize_continuous=False
+    def explain_with_lime(self, user_id, item_id):
+        explainer = lime_tabular.LimeTabularExplainer(
+            self.X,
+            feature_names=['user_id', 'item_id'],
+            verbose=False,
+            mode='regression'
         )
-        exp = explainer.explain_instance(
-            instance,
-            self._predict_fn,
-            num_features=num_features
-        )
-        return exp
+        instance = np.array([user_id, item_id], dtype=float)
+        exp = explainer.explain_instance(instance, self.predict)
+        return exp.as_list()
 
-    def explain_with_shap(self, background_data, instance):
-        """
-        Generate SHAP explanation using KernelExplainer.
-        """
-        explainer = shap.KernelExplainer(
-            self._predict_fn,
-            background_data
-        )
+    def explain_with_shap(self, user_id, item_id, nsamples=100):
+        # take a small sample of background to speed up
+        background = self.X[np.random.choice(self.X.shape[0], min(nsamples, self.X.shape[0]), replace=False)]
+        explainer = shap.KernelExplainer(self.predict, background)
+        instance = np.array([[user_id, item_id]])
         shap_values = explainer.shap_values(instance)
-        return shap_values
+        return dict(zip(['user_id','item_id'], shap_values[0]))

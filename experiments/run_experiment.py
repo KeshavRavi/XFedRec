@@ -20,6 +20,35 @@ from models.transformer_enc import TransformerEncoderRec
 from models.fed_dae import FedDAE
 from data.loader import dataset_to_user_item_lists, load_movielens_100k
 from data.partition import partition_by_user
+from xai.lime_shap_wrapper import XAIExplainer
+def run_experiment(config_path='experiments/scripts/experiment_config.yaml', return_server=False):
+    """
+    Build clients and server, run federated rounds.
+    If return_server=True, return the server object for XAI or further inspection.
+    """
+    # Load config
+    cfg = load_config(config_path)
+    
+    # Load dataset
+    df = load_movielens_100k(cfg['data']['movielens_path'])
+    
+    # Partition dataset among clients
+    partitions = partition_by_user(df, cfg['federation']['n_clients'])
+    
+    # Build model cfg
+    model_cfg = cfg['model']
+    
+    # Build clients
+    clients = build_clients_from_partitions(partitions, model_cfg, device=cfg.get('device', 'cpu'))
+    
+    # Build server
+    server = Server(clients=clients, config=cfg)
+    
+    # Run federated rounds
+    server.run_rounds(num_rounds=cfg['federation']['rounds'])
+    
+    if return_server:
+        return server
 
 def load_config(path):
     with open(path,encoding='utf-8') as f:
@@ -33,21 +62,8 @@ def build_clients_from_partitions(partitions, model_cfg, device='cpu'):
     return clients
 
 def main(config_path):
-    cfg = load_config(config_path)
-    # Load dataset (placeholder)
-    df = load_movielens_100k(cfg['data']['movielens_path'])
-    partitions = partition_by_user(df, cfg['federation']['n_clients'])
-    # choose model type
-    model_type = cfg['model']['type']
-    # simple model cfg
-    model_cfg = cfg['model']
-
-    # build clients
-    clients = build_clients_from_partitions(partitions, model_cfg, device=cfg.get('device', 'cpu'))
-
-    # instantiate server
-    server = Server(clients=clients, config=cfg)
-    server.run_rounds(num_rounds=cfg['federation']['rounds'])
+    # Just call run_experiment; old command-line behavior unchanged
+    run_experiment(config_path=config_path, return_server=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

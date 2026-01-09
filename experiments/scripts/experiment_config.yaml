@@ -23,3 +23,8 @@ dp:
   enabled: false
   sigma: 0.1
   clip_norm: 1.0
+  
+drift:
+  enabled: true
+  type: sudden          # sudden | incremental
+  round: 3

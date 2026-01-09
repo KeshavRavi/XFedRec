@@ -8,6 +8,7 @@ from .aggregator import aggregate
 from .selection import random_selection
 from .logger import ExperimentLogger
 from utils.norms import clip_by_l2
+from drift.detector import DriftDetector
 
 
 class Server:
@@ -25,7 +26,11 @@ class Server:
         if len(clients) > 0:
             self.global_model = copy.deepcopy(clients[0].get_model_state())
         print(f"[Server] Total clients initialized: {len(self.clients)}")
-
+        self.drift_detector = DriftDetector(
+            delta=0.002,
+            confidence_threshold=0.7
+        )
+        self.drifted_clients = set()
             
 
     # --------------------------------------------------
@@ -42,6 +47,7 @@ class Server:
         Collect local updates from selected clients.
         """
         updates = []
+        client_ids = []
         max_norm = self.config['federation'].get('max_update_norm', None)
 
         for c in selected_clients:
@@ -59,10 +65,11 @@ class Server:
                 total_norm = total_norm ** 0.5
                 print(f"[Server] Client {c.client_id} update norm after clipping: {total_norm:.4f} (max {max_norm})")
 
-            updates.append(upd)  # ✅ append the SAME update
-
+            updates.append(upd)  # append the SAME update
+            client_ids.append(c.client_id)
+            
         print(f"[Server] Collected {len(updates)} updates")
-        return updates
+        return updates,client_ids
     # --------------------------------------------------
     # Byzantine client simulation
     # --------------------------------------------------
@@ -87,16 +94,41 @@ class Server:
     # Aggregation
     # --------------------------------------------------
 
-    def aggregate(self, updates):
+    def aggregate(self, updates, client_ids):
         """
-        Aggregate client updates using configured strategy.
+        Aggregate client updates using robust aggregation,
+        excluding drifted clients when possible.
         """
         method = self.config['federation'].get('aggregation', 'fedavg')
         f = self.config['federation'].get('byzantine_clients', 1)
-        print(f"[Server] Aggregating {len(updates)} updates using {method}")
+        
+        drifted_clients = getattr(self, "drifted_clients", set())
+
+        filtered_updates = []
+        filtered_client_ids = []
+
+        for upd, cid in zip(updates, client_ids):
+            if cid in self.drifted_clients:
+                print(f"[Server] Excluding Client {cid} due to confirmed drift")
+                continue
+            filtered_updates.append(upd)
+            filtered_client_ids.append(cid)
+
+        # Fallback if all clients drifted
+        if not filtered_updates:
+            print("[Server] All clients drifted — using all updates")
+            filtered_updates = updates
+            filtered_client_ids = client_ids
+        if not filtered_updates:
+            raise RuntimeError("No updates available for aggregation")
+
+        print(
+            f"[Server] Aggregating {len(filtered_updates)} updates "
+            f"using {method}"
+        )
 
         return aggregate(
-            updates,
+            filtered_updates,
             method=method,
             f=f
         )
@@ -117,12 +149,30 @@ class Server:
 
     def evaluate_global(self):
         """
-        Evaluate global model across clients.
+        Evaluate global model across clients and perform drift detection.
         """
         losses = []
+
         for c in self.clients:
-            m = c.evaluate_model(self.global_model)
-            losses.append(m.get('loss', 0.0))
+            metrics = c.evaluate_model(self.global_model)
+            loss = metrics.get("loss", 0.0)
+            losses.append(loss)
+
+            # ---- Drift Detection ----
+            drift_info = self.drift_detector.update(
+                client_id=c.client_id,
+                loss_value=loss
+            )
+
+            if drift_info["adwin_drift"]:
+                print(f"[Drift] ADWIN detected drift for Client {c.client_id}")
+
+            if self.drift_detector.drift_detected(c.client_id):
+                print(
+                    f"[Drift] CONFIRMED drift for Client {c.client_id} "
+                    f"(confidence={drift_info['drift_confidence']:.2f})"
+                )
+                self.drifted_clients.add(c.client_id)
 
         metrics = {
             "avg_loss": sum(losses) / len(losses) if losses else 0.0
@@ -140,26 +190,26 @@ class Server:
         for r in range(num_rounds):
             print(f"[Server] Starting round {r + 1}/{num_rounds}")
 
-            # 1️⃣ Client selection
+            # 1️ Client selection
             selected = random_selection(
                 self.clients,
                 frac=self.config['federation']['frac']
             )
 
-            # 2️⃣ Broadcast global model
+            # 2️ Broadcast global model
             self.broadcast_model()
 
-            # 3️⃣ Collect updates
-            updates = self.collect_updates(selected, round_id=r)
+            # 3️ Collect updates
+            updates, client_ids = self.collect_updates(selected, round_id=r)
             # 3a️⃣ Inject Byzantine clients
             updates = self.inject_byzantine(updates)
-            # 4️⃣ Robust aggregation
-            agg_state = self.aggregate(updates)
+            # 4️ Robust aggregation
+            agg_state = self.aggregate(updates, client_ids)
 
-            # 5️⃣ Update global model
+            # 5️ Update global model
             self.update_global_model(agg_state)
 
-            # 6️⃣ Evaluation
+            # 6️ Evaluation
             metrics = self.evaluate_global()
             print(f"[Server] Round {r + 1} metrics: {metrics}")
             print(f"[Server] Selected {len(selected)} clients out of {len(self.clients)}")

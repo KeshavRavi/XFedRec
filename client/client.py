@@ -4,6 +4,10 @@ import torch
 import copy
 from .local_trainer import LocalTrainer
 from utils.dp import add_dp_to_state_dict
+from data.drift_simulator import (
+    simulate_sudden_drift,
+    simulate_incremental_drift
+)
 
 class Client:
     def __init__(self, client_id, local_data, model_cfg, device='cpu'):
@@ -40,7 +44,26 @@ class Client:
         """
         Perform local training and return local model update.
         """
-
+        # 0️ Drift Simulation
+        df = self.local_data
+        drift_cfg = self.model_cfg.get("drift", {})
+        if drift_cfg.get("enabled", False):
+            from data.drift_simulator import (
+                simulate_sudden_drift,
+                simulate_incremental_drift
+            )
+            if drift_cfg.get("type") == "sudden":
+                df = simulate_sudden_drift(
+                    df=df,
+                    drift_round=drift_cfg.get("round", 3),
+                    current_round=round_id
+                )
+            elif drift_cfg.get("type") == "incremental":
+                df = simulate_incremental_drift(
+                    df=df,
+                    drift_start=drift_cfg.get("round", 2),
+                    current_round=round_id
+                )    
         # 1️ Local training
         self.trainer.train(
             self.local_data,
@@ -103,3 +126,20 @@ class Client:
 
         mse = ((np.array(preds) - np.array(targets))**2).mean()
         return {'loss': float(mse)}
+    def adapt_to_drift(self):
+        """
+        Adapt client model after drift detection.
+        """
+        print(f"[Client {self.client_id}] Adapting to concept drift")
+
+        # Reset optimizer
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(),
+            lr=self.config['training']['lr'] * 0.5
+        )
+
+        # Optional: Reinitialize final layer
+        if hasattr(self.model, "output_layer"):
+            torch.nn.init.xavier_uniform_(self.model.output_layer.weight)
+
+        self.drift_detected = False

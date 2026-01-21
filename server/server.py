@@ -186,7 +186,9 @@ class Server:
     # --------------------------------------------------
 
     def run_rounds(self, num_rounds=5):
-        """Main federated training loop."""
+        """Main federated training loop with metric logging."""
+        all_metrics = []
+
         for r in range(num_rounds):
             print(f"[Server] Starting round {r + 1}/{num_rounds}")
 
@@ -201,8 +203,10 @@ class Server:
 
             # 3️ Collect updates
             updates, client_ids = self.collect_updates(selected, round_id=r)
-            # 3a️⃣ Inject Byzantine clients
+
+            # 3a️ Inject Byzantine clients (if enabled)
             updates = self.inject_byzantine(updates)
+
             # 4️ Robust aggregation
             agg_state = self.aggregate(updates, client_ids)
 
@@ -211,6 +215,12 @@ class Server:
 
             # 6️ Evaluation
             metrics = self.evaluate_global()
+            metrics["round"] = r + 1
+            all_metrics.append(metrics)
+
             print(f"[Server] Round {r + 1} metrics: {metrics}")
             print(f"[Server] Selected {len(selected)} clients out of {len(self.clients)}")
+
+        return all_metrics
+
 

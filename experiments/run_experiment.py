@@ -45,7 +45,11 @@ def run_experiment(config_path='experiments/scripts/experiment_config.yaml', ret
     server = Server(clients=clients, config=cfg)
     
     # Run federated rounds
-    server.run_rounds(num_rounds=cfg['federation']['rounds'])
+    metrics =server.run_rounds(
+        num_rounds=cfg['federation']['rounds']
+    )
+    return metrics
+    
     
     if return_server:
         return server

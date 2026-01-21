@@ -1,0 +1,32 @@
+[
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 13.834164197709748
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 12.00986775699446
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 9.065546906373946
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 7.700164725458047
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 6.555048356064233
+    }
+  }
+]

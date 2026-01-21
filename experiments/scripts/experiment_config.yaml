@@ -17,13 +17,13 @@ federation:
   #  Milestone 3 controls
   aggregation: median      # fedavg, median, krum, fedq
   byzantine_clients: 1     # Number of malicious clients
-  max_update_norm: 5.0     # ← enables norm clipping
+  max_update_norm: 5.0     #  enables norm clipping
 
 dp:
   enabled: false
   sigma: 0.1
   clip_norm: 1.0
-  
+
 drift:
   enabled: true
   type: sudden          # sudden | incremental

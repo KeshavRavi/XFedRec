@@ -1,0 +1,27 @@
+data:
+  movielens_path: "data/ml-100k.csv"
+
+model:
+  type: "ncf"
+  n_users: 1000
+  n_items: 1700
+  emb_size: 32
+  local_epochs: 1
+  local_batch_size: 64
+
+federation:
+  n_clients: 10
+  frac: 0.5
+  rounds: 5
+
+  aggregation: median
+  byzantine_clients: 2
+  max_update_norm: 5.0
+
+dp:
+  enabled: false
+  sigma: 0.1
+  clip_norm: 1.0
+
+drift:
+  enabled: false

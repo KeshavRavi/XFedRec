@@ -45,14 +45,28 @@ def run_experiment(config_path='experiments/scripts/experiment_config.yaml', ret
     server = Server(clients=clients, config=cfg)
     
     # Run federated rounds
-    metrics =server.run_rounds(
+    metrics = server.run_rounds(
         num_rounds=cfg['federation']['rounds']
     )
-    return metrics
-    
-    
+
+    # ===== Step 5.3: Save metrics =====
+    os.makedirs("experiments/results", exist_ok=True)
+
+    exp_name = os.path.splitext(os.path.basename(config_path))[0]
+    csv_path = f"experiments/results/{exp_name}.csv"
+
+    import csv
+    with open(csv_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=metrics[0].keys())
+        writer.writeheader()
+        writer.writerows(metrics)
+
+    print(f"[Experiment] Results saved to {csv_path}")
+
     if return_server:
         return server
+
+    return metrics
 
 def load_config(path):
     with open(path,encoding='utf-8') as f:

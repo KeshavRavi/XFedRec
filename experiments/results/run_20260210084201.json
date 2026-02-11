@@ -1,0 +1,141 @@
+[
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 2.2722926045195893,
+      "round": 1
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.6325876681996214,
+      "round": 2
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.3115582212630874,
+      "round": 3
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2509609400383401,
+      "round": 4
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.3040204721918756,
+      "round": 5
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.1398467958156626,
+      "round": 6
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2267572602477497,
+      "round": 7
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.0211124065624184,
+      "round": 8
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 0.9652730752740192,
+      "round": 9
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.0491495201762355,
+      "round": 10
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2364596659911693,
+      "round": 11
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.11281968907377,
+      "round": 12
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 0.8537254465318126,
+      "round": 13
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 0.9631521243723096,
+      "round": 14
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 0.8845722144907437,
+      "round": 15
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.0561175378480774,
+      "round": 16
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.049370043098367,
+      "round": 17
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.1122831714913484,
+      "round": 18
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 0.8808415248807293,
+      "round": 19
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 0.8773345899948722
+    }
+  }
+]

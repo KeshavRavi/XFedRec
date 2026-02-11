@@ -5,6 +5,7 @@ Server orchestration for federated learning.
 import copy
 import numpy as np
 from .aggregator import aggregate
+from .robust_aggregation import fedq_aggregate
 from .selection import random_selection
 from .logger import ExperimentLogger
 from utils.norms import clip_by_l2
@@ -27,8 +28,8 @@ class Server:
             self.global_model = copy.deepcopy(clients[0].get_model_state())
         print(f"[Server] Total clients initialized: {len(self.clients)}")
         self.drift_detector = DriftDetector(
-            delta=0.002,
-            confidence_threshold=0.7
+            delta=0.001,
+            confidence_threshold=0.55
         )
         self.drifted_clients = set()
             
@@ -48,13 +49,28 @@ class Server:
         """
         updates = []
         client_ids = []
+        qualities = []  #  FedQ quality scores
         max_norm = self.config['federation'].get('max_update_norm', None)
 
         for c in selected_clients:
-            upd = c.local_update(round_id=round_id)
-
+            upd,metrics = c.local_update(round_id=round_id)
             if upd is None:
-                continue  # safety
+                print(f"[Server] Client {c.client_id} returned upd=None")
+                continue
+            if not isinstance(metrics, dict):
+                print(f"[Server] Client {c.client_id} metrics is {type(metrics)}, using default quality")
+                metrics = {}
+
+            if not isinstance(upd, dict):
+                raise TypeError(f"[Server] Client {c.client_id} update is {type(upd)} not dict. Did you return (state, metrics) but not unpack?")
+            
+            # Quality = inverse of training loss
+            train_loss = metrics.get("train_loss", None)
+            if train_loss is None:
+                q=1.0
+            else:
+                q = 1.0 / (train_loss + 1e-6)
+            qualities.append(q)
 
             if max_norm is not None:
                 upd = clip_by_l2(upd, max_norm)
@@ -68,6 +84,7 @@ class Server:
             updates.append(upd)  # append the SAME update
             client_ids.append(c.client_id)
             
+        self.qualities = qualities    
         print(f"[Server] Collected {len(updates)} updates")
         return updates,client_ids
     # --------------------------------------------------
@@ -102,7 +119,7 @@ class Server:
         method = self.config['federation'].get('aggregation', 'fedavg')
         f = self.config['federation'].get('byzantine_clients', 1)
         
-        drifted_clients = getattr(self, "drifted_clients", set())
+        self.drifted_clients = getattr(self, "drifted_clients", set())
 
         filtered_updates = []
         filtered_client_ids = []
@@ -127,21 +144,43 @@ class Server:
             f"using {method}"
         )
 
-        return aggregate(
-            filtered_updates,
-            method=method,
-            f=f
-        )
+        if method == "fedq":
+            # Use qualities collected during collect_updates()
+            qualities = getattr(self, "qualities", None)
+            if qualities is None or len(qualities) != len(updates):
+                    qualities = [1.0] * len(updates)
 
+            # Filter qualities alongside updates
+            filtered_qualities = []
+            for cid, q in zip(client_ids, qualities):
+                if cid in self.drifted_clients:
+                    continue
+                filtered_qualities.append(q)
+            # Safety fallback
+            if len(filtered_qualities) != len(filtered_updates):
+                filtered_qualities = [1.0] * len(filtered_updates)
+
+            return fedq_aggregate(filtered_updates, filtered_qualities)
+        
+        # IMPORTANT: for non-fedq methods, return normal aggregator result
+        return aggregate(filtered_updates, method=method, f=f)
     # --------------------------------------------------
     # Global Model Update
     # --------------------------------------------------
 
     def update_global_model(self, new_state):
         """Update server global model and broadcast."""
+        if new_state is None:
+            raise RuntimeError("[Server] Aggregation returned None (new_state is None). Check aggregator output.")
+
+        if not isinstance(new_state, dict):
+            raise TypeError(f"[Server] Aggregation returned {type(new_state)} instead of dict")
+
         self.global_model = new_state
+
         for c in self.clients:
             c.update_server_version(copy.deepcopy(self.global_model))
+
 
     # --------------------------------------------------
     # Evaluation
@@ -169,10 +208,12 @@ class Server:
 
             if self.drift_detector.drift_detected(c.client_id):
                 print(
-                    f"[Drift] CONFIRMED drift for Client {c.client_id} "
-                    f"(confidence={drift_info['drift_confidence']:.2f})"
-                )
+                    f"[Drift] CONFIRMED drift for Client {c.client_id} ")
                 self.drifted_clients.add(c.client_id)
+                #Adapt
+                c.adapt_to_drift()
+
+                self.drift_detector.reset_client(c.client_id)
 
         metrics = {
             "avg_loss": sum(losses) / len(losses) if losses else 0.0

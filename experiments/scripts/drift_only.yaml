@@ -12,7 +12,7 @@ model:
 federation:
   n_clients: 10
   frac: 0.5
-  rounds: 5
+  rounds: 20
 
   aggregation: fedavg
   byzantine_clients: 0

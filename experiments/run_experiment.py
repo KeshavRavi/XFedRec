@@ -19,7 +19,7 @@ from models.ncf import NeuralCF
 from models.transformer_enc import TransformerEncoderRec
 from models.fed_dae import FedDAE
 from data.loader import dataset_to_user_item_lists, load_movielens_100k
-from data.partition import partition_by_user
+from data.partition import partition_by_user, partition_by_time
 from xai.lime_shap_wrapper import XAIExplainer
 def run_experiment(config_path='experiments/scripts/experiment_config.yaml', return_server=False):
     """
@@ -31,12 +31,24 @@ def run_experiment(config_path='experiments/scripts/experiment_config.yaml', ret
     
     # Load dataset
     df = load_movielens_100k(cfg['data']['movielens_path'])
-    
-    # Partition dataset among clients
-    partitions = partition_by_user(df, cfg['federation']['n_clients'])
-    
+
     # Build model cfg
     model_cfg = cfg['model']
+    model_cfg["drift"] = cfg.get("drift", {"enabled": False})
+
+
+    # FIX: make embedding sizes safe (prevents index out of range)
+    model_cfg["n_users"] = int(df["user_id"].max()) + 1
+    model_cfg["n_items"] = int(df["item_id"].max()) + 1
+    print("[Config] n_users =", model_cfg["n_users"], "n_items =", model_cfg["n_items"])
+    # Partition dataset among clients
+    if cfg.get("drift", {}).get("enabled", False) and "timestamp" in df.columns:
+        partitions = partition_by_time(df, cfg['federation']['n_clients'], timestamp_col="timestamp")
+    else:
+        partitions = partition_by_user(df, cfg['federation']['n_clients'])
+
+
+
     
     # Build clients
     clients = build_clients_from_partitions(partitions, model_cfg, device=cfg.get('device', 'cpu'))

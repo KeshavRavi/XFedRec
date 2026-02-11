@@ -48,8 +48,11 @@ class LocalTrainer:
         epochs = epochs or self.epochs
         dl = self._make_dataloader(local_df)
         if dl is None:
-            return
+            return 0.0 #return loss safely
         self.model.train()
+        #track loss for drift detection
+        total_loss=0.0
+        count=0
         for e in range(epochs):
             for u,i,r in dl:
                 u = u.to(self.device)
@@ -61,3 +64,8 @@ class LocalTrainer:
                 loss.backward()
                 # Optionally clip gradients using dp config (handled at client)
                 self.optimizer.step()
+                #accumulate loss
+                total_loss += loss.item()
+                count += 1
+        #Return average training loss
+        return total_loss / max(count, 1)

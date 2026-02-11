@@ -18,6 +18,9 @@ class Client:
         self.model = self._init_model(model_cfg).to(device)
         self.trainer = LocalTrainer(self.model, device=device, config=model_cfg)
         self.global_state = None
+        self.current_round_df = self.local_data
+        self.sudden_drift_done = False
+
 
     def _init_model(self, cfg):
         model_type = cfg.get('type', 'ncf')
@@ -47,28 +50,35 @@ class Client:
         # 0️ Drift Simulation
         df = self.local_data
         drift_cfg = self.model_cfg.get("drift", {})
+
         if drift_cfg.get("enabled", False):
-            from data.drift_simulator import (
-                simulate_sudden_drift,
-                simulate_incremental_drift
-            )
             if drift_cfg.get("type") == "sudden":
-                df = simulate_sudden_drift(
-                    df=df,
-                    drift_round=drift_cfg.get("round", 3),
-                    current_round=round_id
-                )
+                drift_round=drift_cfg.get("round", 3)
+                
+                #  apply sudden drift ONCE per client (first time it reaches drift_round)
+                if (not self.sudden_drift_done) and (round_id >= drift_round):    
+                    df = simulate_sudden_drift(
+                        df=df,
+                        drift_round=drift_round,
+                        current_round=round_id
+                    )
+                    self.sudden_drift_done = True
+                    print(f"[Client {self.client_id}] Sudden drift triggered at round {round_id}")
+
             elif drift_cfg.get("type") == "incremental":
                 df = simulate_incremental_drift(
                     df=df,
                     drift_start=drift_cfg.get("round", 2),
                     current_round=round_id
-                )    
+                )
+
+        self.current_round_df = df    
         # 1️ Local training
-        self.trainer.train(
-            self.local_data,
+        train_loss=self.trainer.train(
+            df,
             epochs=self.model_cfg.get('local_epochs', 1)
         )
+        self.last_train_loss = train_loss
 
         # 2️  Client-side XAI 
         if self.model_cfg.get("enable_xai", False):
@@ -103,7 +113,10 @@ class Client:
                 sigma=dp_cfg.get('sigma', 0.1)
             )
 
-        return state
+        return state,{
+            "train_loss": train_loss,
+            "n": len(df)
+        }
 
     def update_server_version(self, server_state):
         self.model.load_state_dict(server_state)
@@ -112,11 +125,14 @@ class Client:
         self.model.load_state_dict(state_dict)
         import numpy as np
 
-        if self.local_data is None or len(self.local_data) == 0:
+        #  NEW: use drifted df for this round if available
+        eval_df = getattr(self, "current_round_df", self.local_data)
+
+        if eval_df is None or len(eval_df) == 0:
             return {'loss': 0.0}
 
         preds, targets = [], []
-        for _, row in self.local_data.sample(n=min(20, len(self.local_data))).iterrows():
+        for _, row in eval_df.sample(n=min(20, len(eval_df))).iterrows():
             u = torch.tensor([int(row['user_id'])], dtype=torch.long)
             i = torch.tensor([int(row['item_id'])], dtype=torch.long)
             with torch.no_grad():
@@ -128,18 +144,25 @@ class Client:
         return {'loss': float(mse)}
     def adapt_to_drift(self):
         """
-        Adapt client model after drift detection.
+        Adapt client model after drift detection (safer version).
         """
-        print(f"[Client {self.client_id}] Adapting to concept drift")
+        print(f"[Client {self.client_id}] Adapting to drift")
 
-        # Reset optimizer
-        self.optimizer = torch.optim.Adam(
-            self.model.parameters(),
-            lr=self.config['training']['lr'] * 0.5
-        )
+        # Reduce LR of the REAL optimizer used in LocalTrainer
+        for g in self.trainer.optimizer.param_groups:
+            g["lr"] *= 0.5
 
-        # Optional: Reinitialize final layer
-        if hasattr(self.model, "output_layer"):
+        # Reset final layer weights (support both names)
+        if hasattr(self.model, "output") and hasattr(self.model.output, "weight"):
+            torch.nn.init.xavier_uniform_(self.model.output.weight)
+            if getattr(self.model.output, "bias", None) is not None:
+                torch.nn.init.zeros_(self.model.output.bias)
+
+        if hasattr(self.model, "output_layer") and hasattr(self.model.output_layer, "weight"):
             torch.nn.init.xavier_uniform_(self.model.output_layer.weight)
+            if getattr(self.model.output_layer, "bias", None) is not None:
+                torch.nn.init.zeros_(self.model.output_layer.bias)
 
-        self.drift_detected = False
+        # Boost epochs safely (avoid KeyError / non-int values)
+        self.model_cfg["local_epochs"] = int(self.model_cfg.get("local_epochs", 1)) + 1
+

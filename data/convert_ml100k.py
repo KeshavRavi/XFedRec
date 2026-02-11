@@ -9,7 +9,6 @@ df = pd.read_csv(
     names=["user_id", "item_id", "rating", "timestamp"]
 )
 
-df = df.drop(columns=["timestamp"])
 df.to_csv(output_path, index=False)
 
 print("Converted! Saved to", output_path)

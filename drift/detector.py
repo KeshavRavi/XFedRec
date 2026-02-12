@@ -1,10 +1,5 @@
-"""
-Unified Drift Detector combining ADWIN2 and Kalman Filter.
-
-Tracks concept drift per client and provides
-smoothed drift confidence signals.
-"""
-
+# drift/detector.py
+import math
 from drift.adwin import ADWIN2
 from drift.kalman import KalmanFilter1D
 
@@ -12,82 +7,112 @@ from drift.kalman import KalmanFilter1D
 class DriftDetector:
     def __init__(
         self,
-        delta=0.002,
+        delta=0.05,                 # IMPORTANT: less strict than 0.002
         kalman_q=1e-5,
         kalman_r=1e-1,
-        confidence_threshold=0.7
+        confidence_threshold=0.7,
+        ema_alpha=0.3
     ):
-        """
-        Parameters
-        ----------
-        delta : float
-            ADWIN confidence parameter
-        kalman_q : float
-            Kalman process variance
-        kalman_r : float
-            Kalman measurement variance
-        confidence_threshold : float
-            Threshold to trigger drift adaptation
-        """
-        self.delta = delta
-        self.confidence_threshold = confidence_threshold
+        self.delta = float(delta)
+        self.kalman_q = float(kalman_q)
+        self.kalman_r = float(kalman_r)
+        self.confidence_threshold = float(confidence_threshold)
+        self.ema_alpha = float(ema_alpha)
+
 
         self.adwins = {}
         self.kalmans = {}
+        self.confirmed = set()
+
+        # running stats for normalization (per client)
+        self.stats = {}  # client_id -> (mean, M2, n)
+
+        # confidence per client
+        self._conf = {}
 
     def _init_client(self, client_id):
-        """Initialize drift detectors for a new client."""
         self.adwins[client_id] = ADWIN2(delta=self.delta)
         self.kalmans[client_id] = KalmanFilter1D(
-            process_variance=1e-5,
-            measurement_variance=1e-1
+            process_variance=self.kalman_q,
+            measurement_variance=self.kalman_r
         )
 
     def update(self, client_id, loss_value):
-        """
-        Update drift detectors with new loss value.
-
-        Returns
-        -------
-        dict
-            Drift monitoring information
-        """
         if client_id not in self.adwins:
             self._init_client(client_id)
 
         adwin = self.adwins[client_id]
         kalman = self.kalmans[client_id]
 
-        # ADWIN raw signal
-        drift_raw = adwin.update(loss_value)
+        raw_loss = float(loss_value)
 
-        # Convert to numeric signal
-        measurement = 1.0 if drift_raw else 0.0
+        # 1) smooth
+        smoothed_loss = float(kalman.update(raw_loss))
 
-        # Kalman smoothing
-        drift_confidence = kalman.update(measurement)
+        # 2) normalize the SMOOTHED stream (not raw)
+        norm_loss = self._norm_loss(client_id, smoothed_loss)
+
+        # 3) ADWIN on normalized stream
+        drift_raw = adwin.update(norm_loss)
+
+        # 4) EMA confidence
+        prev_conf = self._conf.get(client_id, 0.0)
+        a = self.ema_alpha
+        new_conf = (1 - a) * prev_conf + a * (1.0 if drift_raw else 0.0)
+        self._conf[client_id] = new_conf
+
+        if new_conf >= self.confidence_threshold:
+            self.confirmed.add(client_id)
 
         return {
             "client_id": client_id,
-            "loss": loss_value,
+            "loss": raw_loss,
+            "smoothed_loss": smoothed_loss,
+            "norm_loss": norm_loss,
             "adwin_drift": drift_raw,
-            "drift_confidence": drift_confidence
+            "drift_confidence": float(new_conf),
+            "confirmed": client_id in self.confirmed,
+
+            # debug from ADWIN
+            "adwin_n": getattr(adwin, "last_n", None),
+            "adwin_mean0": getattr(adwin, "last_mean0", None),
+            "adwin_mean1": getattr(adwin, "last_mean1", None),
+            "adwin_eps": getattr(adwin, "last_eps", None),
         }
 
     def drift_detected(self, client_id):
-        """Check if smoothed drift exceeds threshold."""
-        if client_id not in self.kalmans:
-            return False
-        return self.kalmans[client_id].x >= self.confidence_threshold
+        return client_id in self.confirmed
 
     def reset_client(self, client_id):
-        """Reset drift detectors after adaptation."""
         if client_id in self.adwins:
             self.adwins[client_id].reset()
         if client_id in self.kalmans:
             self.kalmans[client_id].reset()
-    def has_drifted(self):
-        """
-        Returns True if confirmed drift detected
-        """
-        return self.confirmed
+
+        self.confirmed.discard(client_id)
+        self._conf.pop(client_id, None)
+        self.stats.pop(client_id, None)
+
+    def has_drifted(self, client_id=None):
+        if client_id is None:
+            return len(self.confirmed) > 0
+        return client_id in self.confirmed
+
+    def _norm_loss(self, client_id, x):
+        # Welford running mean/variance
+        mean, M2, n = self.stats.get(client_id, (0.0, 0.0, 0))
+        n += 1
+        delta = x - mean
+        mean += delta / n
+        delta2 = x - mean
+        M2 += delta * delta2
+        var = (M2 / (n - 1)) if n > 1 else 1e-6
+        self.stats[client_id] = (mean, M2, n)
+
+        std = math.sqrt(var) + 1e-6
+        z = (x - mean) / std
+
+        # keep it bounded for ADWIN
+        # clamp z to avoid exp overflow
+        z = max(-3.0, min(3.0, z))
+        return (z + 3.0) / 6.0

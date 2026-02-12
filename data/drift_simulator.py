@@ -5,7 +5,7 @@ Drift simulation utilities for federated clients.
 import pandas as pd
 import numpy as np
 
-def simulate_sudden_drift(df, drift_round, current_round, ratio=0.4):
+def simulate_sudden_drift(df, drift_round, current_round, ratio=0.4, rating_noise=2.0):
     """
     Sudden drift: abruptly change item distribution.
     Happens at drift_round and persists afterwards.
@@ -19,11 +19,15 @@ def simulate_sudden_drift(df, drift_round, current_round, ratio=0.4):
     n = int(len(df) * ratio)
     idx = np.random.choice(len(df), n, replace=False)
 
-    #  SAFEST: sample only from existing item IDs
+    # change items
     items = df["item_id"].unique()
-    df.loc[idx, df.columns.get_loc("item_id")] = np.random.choice(
-        items, size=n, replace=True
-    )
+    df.loc[idx, "item_id"] = np.random.choice(items, size=n, replace=True)
+
+    # change ratings so loss shifts noticeably
+    if "rating" in df.columns:
+        noise = np.random.normal(0, rating_noise, size=n)
+        df.loc[idx, "rating"] = df.loc[idx, "rating"] + noise
+        df["rating"] = df["rating"].clip(1.0, 5.0)
 
     return df
 

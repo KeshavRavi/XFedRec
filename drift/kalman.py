@@ -21,11 +21,11 @@ class KalmanFilter1D:
         measurement_variance : float
             Controls trust in ADWIN signal (R)
         """
-        self.Q = process_variance
-        self.R = measurement_variance
+        self.Q = float(process_variance)
+        self.R = float(measurement_variance)
 
-        self.x = initial_estimate      # State estimate (drift level)
-        self.P = initial_error         # Estimation error covariance
+        self.x = float(initial_estimate)      # State estimate (drift level)
+        self.P = float(initial_error)         # Estimation error covariance
 
     def update(self, measurement: float):
         """

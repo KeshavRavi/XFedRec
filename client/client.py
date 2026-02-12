@@ -10,16 +10,22 @@ from data.drift_simulator import (
 )
 
 class Client:
-    def __init__(self, client_id, local_data, model_cfg, device='cpu'):
+    def __init__(self, client_id, local_data, model_cfg, drift_cfg=None, dp_cfg=None, device='cpu'):
         self.client_id = client_id
         self.local_data = local_data
         self.device = device
+
         self.model_cfg = model_cfg
+        self.drift_cfg = drift_cfg or {}   # ✅ drift config comes from YAML top-level
+        self.dp_cfg = dp_cfg or {}         # ✅ dp config from YAML top-level
+
         self.model = self._init_model(model_cfg).to(device)
         self.trainer = LocalTrainer(self.model, device=device, config=model_cfg)
+
         self.global_state = None
         self.current_round_df = self.local_data
         self.sudden_drift_done = False
+        self.drifted_data = None
 
 
     def _init_model(self, cfg):
@@ -48,10 +54,11 @@ class Client:
         Perform local training and return local model update.
         """
         # 0️ Drift Simulation
-        df = self.local_data
-        drift_cfg = self.model_cfg.get("drift", {})
+        df = self.drifted_data if self.drifted_data is not None else self.local_data
+        drift_cfg = self.drift_cfg
 
         if drift_cfg.get("enabled", False):
+            
             if drift_cfg.get("type") == "sudden":
                 drift_round=drift_cfg.get("round", 3)
                 
@@ -63,22 +70,30 @@ class Client:
                         current_round=round_id
                     )
                     self.sudden_drift_done = True
+                    self.drifted_data = df   # SAVE drifted df
                     print(f"[Client {self.client_id}] Sudden drift triggered at round {round_id}")
 
             elif drift_cfg.get("type") == "incremental":
-                df = simulate_incremental_drift(
-                    df=df,
-                    drift_start=drift_cfg.get("round", 2),
-                    current_round=round_id
-                )
+                drift_start=drift_cfg.get("round", 2)
+                if round_id >= drift_start:
+                    df = simulate_incremental_drift(
+                        df=df,
+                        drift_start=drift_start,
+                        current_round=round_id
+                    )
+                    self.drifted_data = df   # SAVE updated df every round (incremental persists)
 
         self.current_round_df = df    
+        df_train = df.copy()
+        if int(df_train["user_id"].min()) == 1:
+            df_train["user_id"] = df_train["user_id"] - 1
+        if int(df_train["item_id"].min()) == 1:
+            df_train["item_id"] = df_train["item_id"] - 1
+
         # 1️ Local training
-        train_loss=self.trainer.train(
-            df,
-            epochs=self.model_cfg.get('local_epochs', 1)
-        )
-        self.last_train_loss = train_loss
+        train_loss=self.trainer.train(df_train,epochs=self.model_cfg.get('local_epochs', 1))
+        self.current_round_df = df_train
+        self.drifted_data = df_train if self.drifted_data is not None else None
 
         # 2️  Client-side XAI 
         if self.model_cfg.get("enable_xai", False):
@@ -106,7 +121,7 @@ class Client:
         state = copy.deepcopy(self.model.state_dict())
 
         # 4️ Optional DP
-        dp_cfg = self.model_cfg.get('dp', {})
+        dp_cfg = self.dp_cfg
         if dp_cfg.get('enabled', False):
             state = add_dp_to_state_dict(
                 state,
@@ -123,25 +138,38 @@ class Client:
 
     def evaluate_model(self, state_dict):
         self.model.load_state_dict(state_dict)
+        self.model.eval()
         import numpy as np
 
         #  NEW: use drifted df for this round if available
-        eval_df = getattr(self, "current_round_df", self.local_data)
+        eval_df = getattr(self, "current_round_df", None)
+        if eval_df is None:
+            eval_df = self.local_data
 
         if eval_df is None or len(eval_df) == 0:
             return {'loss': 0.0}
 
         preds, targets = [], []
-        for _, row in eval_df.sample(n=min(20, len(eval_df))).iterrows():
-            u = torch.tensor([int(row['user_id'])], dtype=torch.long)
-            i = torch.tensor([int(row['item_id'])], dtype=torch.long)
-            with torch.no_grad():
-                out = self.model(u, i)
-            preds.append(out.item())
-            targets.append(float(row.get('rating', 1.0)))
+        sample_df = eval_df.sample(n=min(200, len(eval_df)))
+        
+        with torch.no_grad():
+            for _, row in sample_df.iterrows():
+                # keep consistent with your training indexing
+                u_id = self._idx(sample_df, "user_id", row["user_id"])
+                i_id = self._idx(sample_df, "item_id", row["item_id"])
 
-        mse = ((np.array(preds) - np.array(targets))**2).mean()
+
+                u = torch.tensor([u_id], dtype=torch.long, device=self.device)
+                i = torch.tensor([i_id], dtype=torch.long, device=self.device)
+
+                out = self.model(u, i)
+                preds.append(out.item())
+                targets.append(float(row.get('rating', 1.0)))
+
+        mse = ((np.array(preds) - np.array(targets)) ** 2).mean()
         return {'loss': float(mse)}
+    
+    
     def adapt_to_drift(self):
         """
         Adapt client model after drift detection (safer version).
@@ -165,4 +193,12 @@ class Client:
 
         # Boost epochs safely (avoid KeyError / non-int values)
         self.model_cfg["local_epochs"] = int(self.model_cfg.get("local_epochs", 1)) + 1
+    
+    def _idx(self, df, col, value):
+        # if data starts at 1 (MovieLens), convert to 0-based
+        # if it already starts at 0, keep as-is
+        if df is not None and len(df) > 0 and int(df[col].min()) == 1:
+            return int(value) - 1
+        return int(value)
+
 

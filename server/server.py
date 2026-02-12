@@ -21,15 +21,23 @@ class Server:
         self.clients = clients
         self.config = config
         self.logger = ExperimentLogger()
+        self.last_train_losses = {}
+
 
         # Initialize global model from first client
         self.global_model = None
         if len(clients) > 0:
             self.global_model = copy.deepcopy(clients[0].get_model_state())
         print(f"[Server] Total clients initialized: {len(self.clients)}")
+        drift_cfg = self.config.get("drift", {})
+        print(type(drift_cfg.get("kalman_q")), drift_cfg.get("kalman_q"))
+
         self.drift_detector = DriftDetector(
-            delta=0.001,
-            confidence_threshold=0.55
+            delta=drift_cfg.get("delta", 0.05),
+            kalman_q=drift_cfg.get("kalman_q", 1e-5),
+            kalman_r=drift_cfg.get("kalman_r", 1e-1),
+            confidence_threshold=drift_cfg.get("confidence_threshold", 0.6),
+            ema_alpha=drift_cfg.get("ema_alpha", 0.3)
         )
         self.drifted_clients = set()
             
@@ -64,6 +72,7 @@ class Server:
             if not isinstance(upd, dict):
                 raise TypeError(f"[Server] Client {c.client_id} update is {type(upd)} not dict. Did you return (state, metrics) but not unpack?")
             
+            self.last_train_losses[c.client_id] = metrics.get("train_loss", None)
             # Quality = inverse of training loss
             train_loss = metrics.get("train_loss", None)
             if train_loss is None:
@@ -194,26 +203,39 @@ class Server:
 
         for c in self.clients:
             metrics = c.evaluate_model(self.global_model)
-            loss = metrics.get("loss", 0.0)
+            # Prefer last known train loss (reacts to drift faster)
+            train_loss = self.last_train_losses.get(c.client_id)
+            loss = train_loss if train_loss is not None else metrics.get("loss", 0.0)
+
+
             losses.append(loss)
 
             # ---- Drift Detection ----
             drift_info = self.drift_detector.update(
                 client_id=c.client_id,
                 loss_value=loss
+        )
+
+            print(
+                f"[DriftMonitor] Client {c.client_id} | loss={loss:.4f} | smooth={drift_info['smoothed_loss']:.4f} "
+                f"| adwin={drift_info['adwin_drift']} | conf={drift_info['drift_confidence']:.3f} "
+                f"| n={drift_info.get('adwin_n')} m0={drift_info.get('adwin_mean0')} m1={drift_info.get('adwin_mean1')} eps={drift_info.get('adwin_eps')}"
             )
+
 
             if drift_info["adwin_drift"]:
                 print(f"[Drift] ADWIN detected drift for Client {c.client_id}")
 
             if self.drift_detector.drift_detected(c.client_id):
-                print(
-                    f"[Drift] CONFIRMED drift for Client {c.client_id} ")
+                print(f"[Drift] CONFIRMED drift for Client {c.client_id}")
                 self.drifted_clients.add(c.client_id)
-                #Adapt
-                c.adapt_to_drift()
 
+                c.adapt_to_drift()
                 self.drift_detector.reset_client(c.client_id)
+
+                # allow client back after adapting
+                self.drifted_clients.discard(c.client_id)
+
 
         metrics = {
             "avg_loss": sum(losses) / len(losses) if losses else 0.0
@@ -232,7 +254,9 @@ class Server:
 
         for r in range(num_rounds):
             print(f"[Server] Starting round {r + 1}/{num_rounds}")
-
+            
+            # ✅ clear per-round train losses so we never reuse old values
+            self.last_train_losses = {}
             # 1️ Client selection
             selected = random_selection(
                 self.clients,

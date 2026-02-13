@@ -27,8 +27,8 @@ drift:
   enabled: true
   type: sudden
   round: 3
-  delta: 0.05
-  confidence_threshold: 0.4
+  delta: 0.01
+  confidence_threshold: 0.5
   ema_alpha: 0.5
-  kalman_q: 1.0e-5
-  kalman_r: 1.0e-1
+  kalman_q: 0.1
+  kalman_r: 0.01

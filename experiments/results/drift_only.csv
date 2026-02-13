@@ -1,21 +1,21 @@
-avg_loss,round
-4.103917283531615,1
-1.4212380429654337,2
-1.3035495118582368,3
-1.181191389658816,4
-1.1947627724094767,5
-1.165500776408879,6
-1.092433688026143,7
-1.0860150873436518,8
-1.0507241080818281,9
-1.0864447991309674,10
-1.0688906601338626,11
-1.016525470164733,12
-1.033855686842901,13
-1.02778547480998,14
-1.0157908852572937,15
-1.0331962665085326,16
-0.9713286079084446,17
-1.0363410766378658,18
-0.9764104033922042,19
-0.9747736374661171,20
+avg_loss,drift_metrics,round
+5.4568227306378025,[],1
+1.5477008655706062,[],2
+1.3716270608090155,"[{'client_id': 1, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 2, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 3, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 4, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 5, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 7, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 8, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 9, 'metric': 'detection_delay', 'value': 0, 'round': 3}]",3
+1.4293833401957114,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 1, 'round': 4}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 6, 'metric': 'detection_delay', 'value': 1, 'round': 4}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 4}]",4
+1.4723538934440448,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 5}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 5}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 5}]",5
+1.6215551945043216,"[{'client_id': 1, 'metric': 'detection_delay', 'value': 3, 'round': 6}, {'client_id': 2, 'metric': 'detection_delay', 'value': 3, 'round': 6}, {'client_id': 3, 'metric': 'detection_delay', 'value': 3, 'round': 6}, {'client_id': 5, 'metric': 'detection_delay', 'value': 3, 'round': 6}, {'client_id': 7, 'metric': 'detection_delay', 'value': 3, 'round': 6}, {'client_id': 8, 'metric': 'detection_delay', 'value': 3, 'round': 6}, {'client_id': 9, 'metric': 'detection_delay', 'value': 3, 'round': 6}]",6
+1.4612807315180762,"[{'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 4, 'metric': 'detection_delay', 'value': 4, 'round': 7}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 7}]",7
+1.4572137206189801,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 5, 'round': 8}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 8}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 8}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 8}]",8
+1.3907713483652233,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 9}, {'client_id': 1, 'metric': 'detection_delay', 'value': 6, 'round': 9}, {'client_id': 2, 'metric': 'detection_delay', 'value': 6, 'round': 9}, {'client_id': 3, 'metric': 'detection_delay', 'value': 6, 'round': 9}, {'client_id': 6, 'metric': 'detection_delay', 'value': 6, 'round': 9}, {'client_id': 7, 'metric': 'detection_delay', 'value': 6, 'round': 9}]",9
+1.3311187549256525,"[{'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 4, 'metric': 'detection_delay', 'value': 7, 'round': 10}, {'client_id': 5, 'metric': 'detection_delay', 'value': 7, 'round': 10}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 8, 'metric': 'detection_delay', 'value': 7, 'round': 10}]",10
+1.4536578090690222,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 8, 'round': 11}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 11}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 11}, {'client_id': 9, 'metric': 'detection_delay', 'value': 8, 'round': 11}]",11
+1.433778664905883,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 12}, {'client_id': 2, 'metric': 'detection_delay', 'value': 9, 'round': 12}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 12}]",12
+1.601059787598596,"[{'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 13}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 13}, {'client_id': 7, 'metric': 'detection_delay', 'value': 10, 'round': 13}]",13
+1.432558858133373,"[{'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 14}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 14}]",14
+1.2549188676726466,"[{'client_id': 1, 'metric': 'detection_delay', 'value': 12, 'round': 15}, {'client_id': 2, 'metric': 'detection_delay', 'value': 12, 'round': 15}, {'client_id': 3, 'metric': 'detection_delay', 'value': 12, 'round': 15}, {'client_id': 4, 'metric': 'detection_delay', 'value': 12, 'round': 15}, {'client_id': 8, 'metric': 'detection_delay', 'value': 12, 'round': 15}]",15
+1.2935243246325503,"[{'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 16}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 16}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 16}, {'client_id': 5, 'metric': 'detection_delay', 'value': 13, 'round': 16}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 16}, {'client_id': 7, 'metric': 'detection_delay', 'value': 13, 'round': 16}]",16
+1.455133911730306,"[{'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 17}]",17
+1.3158858152419426,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 15, 'round': 18}, {'client_id': 2, 'metric': 'detection_delay', 'value': 15, 'round': 18}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 18}, {'client_id': 4, 'metric': 'detection_delay', 'value': 15, 'round': 18}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 18}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 18}]",18
+1.17338387699482,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 19}, {'client_id': 1, 'metric': 'detection_delay', 'value': 16, 'round': 19}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 19}, {'client_id': 8, 'metric': 'detection_delay', 'value': 16, 'round': 19}, {'client_id': 9, 'metric': 'detection_delay', 'value': 16, 'round': 19}]",19
+1.3114263961745425,"[{'client_id': 3, 'metric': 'detection_delay', 'value': 17, 'round': 20}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 20}, {'client_id': 7, 'metric': 'detection_delay', 'value': 17, 'round': 20}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 20}]",20

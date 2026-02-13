@@ -1,0 +1,142 @@
+[
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 3.7088936539112907,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.337089408557556,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2089494915310444,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.4594336967357369,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5451168387121694,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5593943745533454,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5744352635066206,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.542153232090437,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.6061215063145493,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.6163725709933137,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.623052165394876,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.573707410317053,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5685647205433253,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5697363308677499,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5476046562614072,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5636043040082386,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5466011821086318,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.4954272725582862,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.509065022471724,
+      "drift_events": []
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5393832594239845,
+      "drift_events": []
+    }
+  }
+]

@@ -16,8 +16,8 @@ class Client:
         self.device = device
 
         self.model_cfg = model_cfg
-        self.drift_cfg = drift_cfg or {}   # ✅ drift config comes from YAML top-level
-        self.dp_cfg = dp_cfg or {}         # ✅ dp config from YAML top-level
+        self.drift_cfg = drift_cfg or {}   #  drift config comes from YAML top-level
+        self.dp_cfg = dp_cfg or {}         #  dp config from YAML top-level
 
         self.model = self._init_model(model_cfg).to(device)
         self.trainer = LocalTrainer(self.model, device=device, config=model_cfg)
@@ -71,7 +71,7 @@ class Client:
                     )
                     self.sudden_drift_done = True
                     self.drifted_data = df   # SAVE drifted df
-                    print(f"[Client {self.client_id}] Sudden drift triggered at round {round_id}")
+                    print(f"\n[Client {self.client_id}]   SUDDEN DRIFT INJECTED at Round {round_id} \n")
 
             elif drift_cfg.get("type") == "incremental":
                 drift_start=drift_cfg.get("round", 2)
@@ -172,27 +172,29 @@ class Client:
     
     def adapt_to_drift(self):
         """
-        Adapt client model after drift detection (safer version).
+        Adapt client model after drift detection.
+        Strategy: Reset Head + Increase Plasticity + Clear Optimizer Momentum.
         """
-        print(f"[Client {self.client_id}] Adapting to drift")
+        print(f"[Client {self.client_id}]  Adapting to drift: Resetting head & Optimizer")
 
-        # Reduce LR of the REAL optimizer used in LocalTrainer
-        for g in self.trainer.optimizer.param_groups:
-            g["lr"] *= 0.5
-
-        # Reset final layer weights (support both names)
+        # 1. Reset Final Layer
         if hasattr(self.model, "output") and hasattr(self.model.output, "weight"):
             torch.nn.init.xavier_uniform_(self.model.output.weight)
-            if getattr(self.model.output, "bias", None) is not None:
+            if self.model.output.bias is not None:
                 torch.nn.init.zeros_(self.model.output.bias)
 
-        if hasattr(self.model, "output_layer") and hasattr(self.model.output_layer, "weight"):
-            torch.nn.init.xavier_uniform_(self.model.output_layer.weight)
-            if getattr(self.model.output_layer, "bias", None) is not None:
-                torch.nn.init.zeros_(self.model.output_layer.bias)
-
-        # Boost epochs safely (avoid KeyError / non-int values)
-        self.model_cfg["local_epochs"] = int(self.model_cfg.get("local_epochs", 1)) + 1
+        # 2. Aggressive Plasticity Boost
+        current_epochs = int(self.model_cfg.get("local_epochs", 1))
+        self.model_cfg["local_epochs"] = current_epochs + 2 
+        
+        # 3. Reset Optimizer State
+        # FIX: Use self.model_cfg instead of self.config
+        lr = float(self.model_cfg.get('lr', 1e-3)) * 1.5
+        
+        self.trainer.optimizer = torch.optim.Adam(
+            self.model.parameters(), 
+            lr=lr
+        )
     
     def _idx(self, df, col, value):
         # if data starts at 1 (MovieLens), convert to 0-based

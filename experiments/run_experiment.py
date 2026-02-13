@@ -1,12 +1,4 @@
 # experiments/run_experiment.py
-"""
-Main entrypoint for running experiments.
-
-This script configures a federated run and demonstrates:
-- Building server and clients
-- Running a few federated rounds
-Note: This is a skeleton demonstrating the flow; extend it to run full experiments.
-"""
 
 import argparse
 import yaml
@@ -21,11 +13,8 @@ from models.fed_dae import FedDAE
 from data.loader import dataset_to_user_item_lists, load_movielens_100k
 from data.partition import partition_by_user, partition_by_time
 from xai.lime_shap_wrapper import XAIExplainer
+
 def run_experiment(config_path='experiments/scripts/experiment_config.yaml', return_server=False):
-    """
-    Build clients and server, run federated rounds.
-    If return_server=True, return the server object for XAI or further inspection.
-    """
     # Load config
     cfg = load_config(config_path)
     
@@ -34,24 +23,30 @@ def run_experiment(config_path='experiments/scripts/experiment_config.yaml', ret
 
     # Build model cfg
     model_cfg = cfg['model']
-    model_cfg["drift"] = cfg.get("drift", {"enabled": False})
-
-
-    # FIX: make embedding sizes safe (prevents index out of range)
+    
+    # FIX: make embedding sizes safe
     model_cfg["n_users"] = int(df["user_id"].max()) + 1
     model_cfg["n_items"] = int(df["item_id"].max()) + 1
-    print("[Config] n_users =", model_cfg["n_users"], "n_items =", model_cfg["n_items"])
-    # Partition dataset among clients
-    if cfg.get("drift", {}).get("enabled", False) and "timestamp" in df.columns:
+    print(f"[Config] n_users = {model_cfg['n_users']}, n_items = {model_cfg['n_items']}")
+
+    # Partition dataset
+    drift_enabled = cfg.get("drift", {}).get("enabled", False)
+    if drift_enabled and "timestamp" in df.columns:
+        print("[Setup] Partitioning by TIME (Drift Simulation)")
         partitions = partition_by_time(df, cfg['federation']['n_clients'], timestamp_col="timestamp")
     else:
+        print("[Setup] Partitioning by USER (Random)")
         partitions = partition_by_user(df, cfg['federation']['n_clients'])
 
-
-
-    
     # Build clients
-    clients = build_clients_from_partitions(partitions, model_cfg, device=cfg.get('device', 'cpu'))
+    #  FIX: Pass drift and dp configs explicitly
+    clients = build_clients_from_partitions(
+        partitions, 
+        model_cfg, 
+        drift_cfg=cfg.get("drift", {}), 
+        dp_cfg=cfg.get("dp", {}),
+        device=cfg.get('device', 'cpu')
+    )
     
     # Build server
     server = Server(clients=clients, config=cfg)
@@ -61,17 +56,18 @@ def run_experiment(config_path='experiments/scripts/experiment_config.yaml', ret
         num_rounds=cfg['federation']['rounds']
     )
 
-    # ===== Step 5.3: Save metrics =====
+    # Save metrics
     os.makedirs("experiments/results", exist_ok=True)
-
     exp_name = os.path.splitext(os.path.basename(config_path))[0]
     csv_path = f"experiments/results/{exp_name}.csv"
 
     import csv
-    with open(csv_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=metrics[0].keys())
-        writer.writeheader()
-        writer.writerows(metrics)
+    if metrics:
+        keys = metrics[0].keys()
+        with open(csv_path, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=keys)
+            writer.writeheader()
+            writer.writerows(metrics)
 
     print(f"[Experiment] Results saved to {csv_path}")
 
@@ -81,18 +77,25 @@ def run_experiment(config_path='experiments/scripts/experiment_config.yaml', ret
     return metrics
 
 def load_config(path):
-    with open(path,encoding='utf-8') as f:
+    with open(path, encoding='utf-8') as f:
         return yaml.safe_load(f)
 
-def build_clients_from_partitions(partitions, model_cfg, device='cpu'):
+# FIX: Updated signature to accept drift_cfg and dp_cfg
+def build_clients_from_partitions(partitions, model_cfg, drift_cfg, dp_cfg, device='cpu'):
     clients = []
     for cid, df in enumerate(partitions):
-        client = Client(client_id=cid, local_data=df, model_cfg=model_cfg, device=device)
+        client = Client(
+            client_id=cid, 
+            local_data=df, 
+            model_cfg=model_cfg, 
+            drift_cfg=drift_cfg,  # <--- CRITICAL PASS
+            dp_cfg=dp_cfg,        # <--- CRITICAL PASS
+            device=device
+        )
         clients.append(client)
     return clients
 
 def main(config_path):
-    # Just call run_experiment; old command-line behavior unchanged
     run_experiment(config_path=config_path, return_server=False)
 
 if __name__ == "__main__":

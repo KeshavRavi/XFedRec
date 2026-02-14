@@ -1,25 +1,48 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import os
-BASE_DIR = "experiments/results"
 
-baseline = pd.read_csv(os.path.join(BASE_DIR, "baseline.csv"))
-median = pd.read_csv(os.path.join(BASE_DIR, "robust_median.csv"))
-drift = pd.read_csv(os.path.join(BASE_DIR, "drift_only.csv"))
-full = pd.read_csv(os.path.join(BASE_DIR, "full_system.csv"))
+# Point to the "paper" results folder
+RESULTS_DIR = "experiments/results/paper"
+OUT_IMG = "experiments/plots/fig3_results.png"
 
-plt.figure()
-plt.plot(baseline["round"], baseline["avg_loss"], label="Baseline")
-plt.plot(median["round"], median["avg_loss"], label="Robust Aggregation")
-plt.plot(drift["round"], drift["avg_loss"], label="Drift-Aware")
-plt.plot(full["round"], full["avg_loss"], label="XFedRec (Full System)", linewidth=3)
+def plot_comparison():
+    # Map the labels to your actual filenames
+    files = {
+        "Baseline": "Baseline.csv",
+        "Robust FL": "Robust_FL.csv",
+        "Drift-Aware": "Drift_Aware.csv",
+        "XFedRec (Proposed)": "XFedRec_Full.csv"
+    }
+    
+    plt.figure(figsize=(10, 6))
+    
+    # Define colors for consistency
+    colors = {"Baseline": "blue", "Robust FL": "orange", "Drift-Aware": "green", "XFedRec (Proposed)": "red"}
+    
+    for label, filename in files.items():
+        path = os.path.join(RESULTS_DIR, filename)
+        if os.path.exists(path):
+            df = pd.read_csv(path)
+            # Plot Loss
+            plt.plot(df["round"], df["avg_loss"], marker='o', linewidth=2, label=label, color=colors.get(label))
+        else:
+            print(f"⚠️ Warning: Missing {filename}")
 
-plt.xlabel("Round")
-plt.ylabel("Average Loss")
-plt.title("XFedRec: Full System Evaluation")
-plt.legend()
-plt.grid(True)
+    # Mark the event round
+    plt.axvline(x=3, color='black', linestyle='--', alpha=0.8, label='Drift/Attack Start')
+    
+    plt.title("Robustness & Adaptation: Training Loss Comparison")
+    plt.xlabel("Communication Rounds")
+    plt.ylabel("Training Loss (MSE)")
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.7)
+    
+    # Save
+    os.makedirs(os.path.dirname(OUT_IMG), exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(OUT_IMG, dpi=300)
+    print(f" Comparison plot saved to {OUT_IMG}")
 
-plt.savefig("experiments/plots/full_system.png")
-plt.show()
+if __name__ == "__main__":
+    plot_comparison()

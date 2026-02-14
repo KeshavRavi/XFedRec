@@ -1,0 +1,25 @@
+data:
+  movielens_path: "data/ml-100k.csv"
+model:
+  type: "ncf"
+  n_users: 944
+  n_items: 1683
+  emb_size: 32
+  local_epochs: 1
+federation:
+  n_clients: 10
+  rounds: 20
+  frac: 1.0             # <--- ADDED THIS
+  aggregation: fedavg
+  byzantine_clients: 0
+  max_update_norm: 5.0
+drift:
+  enabled: true
+  type: sudden
+  round: 3
+  # Detector Settings
+  delta: 0.01
+  kalman_q: 0.1
+  kalman_r: 0.01
+  confidence_threshold: 0.5
+  ema_alpha: 0.5

@@ -1,0 +1,21 @@
+avg_loss,avg_hr,avg_ndcg,drift_events,round
+5.292907893923438,0.39100000000000007,0.19511471829718796,[],1
+5.12206931083825,0.28500000000000003,0.13971278935970302,[],2
+2.236170775077905,0.261,0.12882458869868477,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 1, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 2, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 3, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 4, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 5, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 6, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 7, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 8, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 9, 'metric': 'detection_delay', 'value': 0, 'round': 3}]",3
+1.4766407922267337,0.19899999999999998,0.09591387745060642,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 4}]",4
+1.3314866582426044,0.183,0.09115500012486534,[],5
+1.3291407143478506,0.199,0.10376738109126801,[],6
+1.3128619635009315,0.16999999999999998,0.08675255844752253,[],7
+1.3265232792886272,0.164,0.08454638843358196,[],8
+1.3101196677911848,0.192,0.09749432637416576,[],9
+1.3020159288775317,0.197,0.09257112699931885,[],10
+1.310856934768126,0.44200000000000006,0.3489053878812481,[],11
+1.3231298677146452,0.442,0.35352233005405326,[],12
+1.3088358742307815,0.775,0.7136856214089333,[],13
+1.2798320165539567,0.8099999999999999,0.8001564823687881,[],14
+1.2882182005845961,0.26400000000000007,0.24172539807086418,[],15
+1.2873705243364697,0.20800000000000002,0.11262636508377077,[],16
+1.2844928235638167,0.182,0.09557609882152532,[],17
+1.2769995098434728,0.19499999999999998,0.09909173943767122,[],18
+1.2877759440192174,0.215,0.11959936282298829,[],19
+1.2705348183883116,0.197,0.09500310932963366,[],20

@@ -197,41 +197,45 @@ class Server:
 
     def evaluate_global(self, current_round):
         """
-        Evaluate, Detect Drift, and Manage Adaptation Lifecycle.
+        Evaluate global model, perform drift detection, and log Ranking Metrics.
         """
         losses = []
+        hrs = []
+        ndcgs = []
         drift_metrics_log = []
 
-        # Ground Truth Config for Metric Calculation
         drift_cfg = self.config.get("drift", {})
         gt_drift_round = drift_cfg.get("round", -1)
         gt_enabled = drift_cfg.get("enabled", False)
 
         for c in self.clients:
-            # 1. Get Loss (Evaluation)
+            # 1. Evaluate (Now returns Loss, HR, NDCG)
             metrics = c.evaluate_model(self.global_model)
-            # Use training loss if available for smoother signal, else eval loss
+            
+            # Extract
             train_loss = self.last_train_losses.get(c.client_id)
             loss = train_loss if train_loss is not None else metrics.get("loss", 0.0)
+            hr = metrics.get("hr", 0.0)
+            ndcg = metrics.get("ndcg", 0.0)
+            
             losses.append(loss)
+            hrs.append(hr)
+            ndcgs.append(ndcg)
 
-            # 2. Feed into Detector
+            # 2. Drift Detection (Uses LOSS only)
             d_info = self.drift_detector.update(c.client_id, loss, current_round)
             
-            # --- LOGIC GATE: Handle Drift ---
+            # ... [Drift Logic: Copy your existing Hybrid Logic Here] ...
+            # ... [Paste the EXACT Drift Logic block we fixed in previous steps] ...
+            # ... [Ideally, don't change the logic, just ensure variables are available] ...
             
-            # Case A: New Drift Detected
+            # --- Re-inserting the drift logic snippet for context ---
             if d_info["adwin_drift"] and d_info["state"] == "NORMAL":
-                print(f"[Drift]  DETECTED for Client {c.client_id} at Round {current_round}")
-                
-                # 1. Trigger Client Adaptation
-                c.adapt_to_drift() 
-                
-                # 2. Update Server State
+                print(f"[Drift] 🚨 DETECTED for Client {c.client_id} at Round {current_round}")
+                c.adapt_to_drift()
                 self.drift_detector.confirm_drift(c.client_id)
                 self.drifted_clients.add(c.client_id)
                 
-                # 3. Calculate Detection Delay (Metric)
                 if gt_enabled and gt_drift_round > 0:
                     delay = current_round - gt_drift_round
                     print(f"   -> Detection Delay: {delay} rounds")
@@ -242,39 +246,38 @@ class Server:
                         "round": current_round
                     })
 
-            # Case B: Monitoring Recovery
             elif c.client_id in self.drifted_clients:
-                # Check if loss has recovered to near baseline (e.g., within 20%)
                 baseline = d_info["baseline"]
+                # 1.2x threshold for recovery
                 if loss <= baseline * 1.2: 
-                    print(f"[Drift]  Client {c.client_id} RECOVERED at Round {current_round}")
-                    
+                    print(f"[Drift] ✅ Client {c.client_id} RECOVERED at Round {current_round}")
                     self.drifted_clients.discard(c.client_id)
                     self.drift_detector.signal_recovery(c.client_id)
-                    
-                    # Calculate Recovery Time (Metric)
-                    # Note: You might want to store 'drift_start_round' in a dict to be precise
                     drift_metrics_log.append({
                         "client_id": c.client_id,
                         "metric": "recovery_event",
                         "value": 1, 
                         "round": current_round
                     })
+            # ---------------------------------------------------------
 
-            # Log granular status
-            print(f"[Client {c.client_id}] Loss: {loss:.4f} | Smooth: {d_info['smoothed_loss']:.4f} | State: {d_info['state']}")
-
-        # Aggregated Metrics
+        # 3. Aggregate Everything
         avg_loss = sum(losses) / len(losses) if losses else 0.0
+        avg_hr = sum(hrs) / len(hrs) if hrs else 0.0
+        avg_ndcg = sum(ndcgs) / len(ndcgs) if ndcgs else 0.0
         
-        # Save to logger
+        print(f"[Server] Round {current_round} Eval: Loss={avg_loss:.4f} | HR@10={avg_hr:.4f} | NDCG@10={avg_ndcg:.4f}")
+
         log_payload = {
             "avg_loss": avg_loss,
-            "drift_events": drift_metrics_log
+            "avg_hr": avg_hr,
+            "avg_ndcg": avg_ndcg,
+            "drift_events": drift_metrics_log,
+            "round": current_round
         }
-        self.logger.log({"event": "evaluate", "metrics": log_payload})
         
-        return {"avg_loss": avg_loss, "drift_metrics": drift_metrics_log}
+        self.logger.log({"event": "evaluate", "metrics": log_payload})
+        return log_payload
 
     # --------------------------------------------------
     # Federated Training Loop

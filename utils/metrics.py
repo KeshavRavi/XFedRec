@@ -1,53 +1,70 @@
 # utils/metrics.py
-"""
-Evaluation metrics for recommendation and regression tasks.
-
-Includes:
-- NDCG@k
-- Hit Rate (HR) @k
-- Precision@k
-- RMSE, MAE
-"""
-
+import math
 import numpy as np
+import torch
 
-def precision_at_k(ranked_items, ground_truth, k):
+def calculate_hr_ndcg(model, test_loader, n_items, k=10, device='cpu'):
     """
-    ranked_items: list of item ids in predicted order
-    ground_truth: set of relevant item ids
+    Evaluates HR@K and NDCG@K using Leave-One-Out + 99 Negatives.
     """
-    topk = ranked_items[:k]
-    return len([i for i in topk if i in ground_truth]) / k
+    model.eval()
+    hits = 0
+    ndcgs = 0
+    count = 0
+    
+    with torch.no_grad():
+        for batch in test_loader:
+            # Unpack batch (user, item, rating)
+            users, items, ratings = batch
+            users = users.to(device)
+            pos_items = items.to(device)
+            
+            # Process each user in the batch individually for ranking
+            for idx in range(len(users)):
+                u = users[idx].item()
+                gt_item = pos_items[idx].item()
+                
+                # 1. Negative Sampling
+                # Pick 99 random items the user hasn't interacted with (simplified: just random != gt)
+                negatives = []
+                while len(negatives) < 99:
+                    n = np.random.randint(0, n_items)
+                    if n != gt_item:
+                        negatives.append(n)
+                
+                # 2. Prepare Batch: [Positive, Neg1, Neg2, ... Neg99]
+                eval_items = [gt_item] + negatives
+                eval_users = [u] * 100
+                
+                t_u = torch.tensor(eval_users, dtype=torch.long, device=device)
+                t_i = torch.tensor(eval_items, dtype=torch.long, device=device)
+                
+                # 3. Predict Scores
+                # Note: NCF outputs (batch,), ensure shape matches
+                predictions = model(t_u, t_i).view(-1)
+                
+                # 4. Rank
+                # We want the Top-K scores. 
+                # The ground truth item is at index 0.
+                _, indices = torch.topk(predictions, k)
+                recommends = indices.cpu().tolist()
+                
+                # 5. Calculate Metrics
+                if 0 in recommends:
+                    hits += 1
+                    # Rank is 0-indexed, so +2 for log formula (rank 1 -> index 0 -> log2(2))
+                    rank = recommends.index(0)
+                    ndcgs += 1 / math.log2(rank + 2)
+                
+                count += 1
+                
+                # OPTIMIZATION: Limit evaluation to speed up rounds
+                # Evaluate max 100 users per client per round
+                if count >= 100: break
+            
+            if count >= 100: break
 
-def hit_rate_at_k(ranked_items, ground_truth, k):
-    topk = ranked_items[:k]
-    return 1.0 if any(i in ground_truth for i in topk) else 0.0
-
-def dcg_at_k(ranked_items, ground_truth, k):
-    dcg = 0.0
-    for idx, item in enumerate(ranked_items[:k]):
-        rel = 1.0 if item in ground_truth else 0.0
-        dcg += (2**rel - 1) / np.log2(idx + 2)
-    return dcg
-
-def idcg_at_k(ground_truth, k):
-    # ideal DCG: all relevant items are in top positions
-    rels = [1.0] * min(len(ground_truth), k)
-    idcg = 0.0
-    for idx, rel in enumerate(rels):
-        idcg += (2**rel - 1) / np.log2(idx + 2)
-    return idcg
-
-def ndcg_at_k(ranked_items, ground_truth, k):
-    idcg = idcg_at_k(ground_truth, k)
-    if idcg == 0:
-        return 0.0
-    return dcg_at_k(ranked_items, ground_truth, k) / idcg
-
-def rmse(predictions, targets):
-    predictions = np.array(predictions)
-    targets = np.array(targets)
-    return np.sqrt(np.mean((predictions - targets)**2))
-
-def mae(predictions, targets):
-    return np.mean(np.abs(np.array(predictions) - np.array(targets)))
+    return {
+        "HR@"+str(k): hits / count if count > 0 else 0.0,
+        "NDCG@"+str(k): ndcgs / count if count > 0 else 0.0
+    }

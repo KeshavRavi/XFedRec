@@ -1,0 +1,778 @@
+[
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 3.6585638977204695,
+      "avg_hr": 0.254,
+      "avg_ndcg": 0.12377017086274056,
+      "drift_events": [],
+      "round": 1
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2890887217145774,
+      "avg_hr": 0.277,
+      "avg_ndcg": 0.14286779663143107,
+      "drift_events": [],
+      "round": 2
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2230777509402355,
+      "avg_hr": 0.22600000000000003,
+      "avg_ndcg": 0.10836555666352084,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "detection_delay",
+          "value": 0,
+          "round": 3
+        },
+        {
+          "client_id": 2,
+          "metric": "detection_delay",
+          "value": 0,
+          "round": 3
+        },
+        {
+          "client_id": 4,
+          "metric": "detection_delay",
+          "value": 0,
+          "round": 3
+        },
+        {
+          "client_id": 5,
+          "metric": "detection_delay",
+          "value": 0,
+          "round": 3
+        },
+        {
+          "client_id": 9,
+          "metric": "detection_delay",
+          "value": 0,
+          "round": 3
+        }
+      ],
+      "round": 3
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.388340831789709,
+      "avg_hr": 0.19299999999999998,
+      "avg_ndcg": 0.09433199915949021,
+      "drift_events": [
+        {
+          "client_id": 1,
+          "metric": "detection_delay",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 2,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 3,
+          "metric": "detection_delay",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 7,
+          "metric": "detection_delay",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 9,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        }
+      ],
+      "round": 4
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.4818632823644324,
+      "avg_hr": 0.12100000000000002,
+      "avg_ndcg": 0.05341421815876203,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 5
+        },
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 5
+        },
+        {
+          "client_id": 3,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 5
+        },
+        {
+          "client_id": 6,
+          "metric": "detection_delay",
+          "value": 2,
+          "round": 5
+        }
+      ],
+      "round": 5
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 2.0095930128138346,
+      "avg_hr": 0.146,
+      "avg_ndcg": 0.06539611169806699,
+      "drift_events": [
+        {
+          "client_id": 2,
+          "metric": "detection_delay",
+          "value": 3,
+          "round": 6
+        },
+        {
+          "client_id": 5,
+          "metric": "detection_delay",
+          "value": 3,
+          "round": 6
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 6
+        },
+        {
+          "client_id": 8,
+          "metric": "detection_delay",
+          "value": 3,
+          "round": 6
+        },
+        {
+          "client_id": 9,
+          "metric": "detection_delay",
+          "value": 3,
+          "round": 6
+        }
+      ],
+      "round": 6
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.924011615036683,
+      "avg_hr": 0.13600000000000004,
+      "avg_ndcg": 0.06276935114391125,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "detection_delay",
+          "value": 4,
+          "round": 7
+        },
+        {
+          "client_id": 1,
+          "metric": "detection_delay",
+          "value": 4,
+          "round": 7
+        },
+        {
+          "client_id": 2,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 7
+        },
+        {
+          "client_id": 3,
+          "metric": "detection_delay",
+          "value": 4,
+          "round": 7
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 7
+        }
+      ],
+      "round": 7
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.3516037518003192,
+      "avg_hr": 0.144,
+      "avg_ndcg": 0.06123452882060052,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        },
+        {
+          "client_id": 3,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        },
+        {
+          "client_id": 4,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        },
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        },
+        {
+          "client_id": 6,
+          "metric": "detection_delay",
+          "value": 5,
+          "round": 8
+        },
+        {
+          "client_id": 8,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        }
+      ],
+      "round": 8
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.26518267295161,
+      "avg_hr": 0.15999999999999998,
+      "avg_ndcg": 0.073735277302226,
+      "drift_events": [
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 9
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 9
+        }
+      ],
+      "round": 9
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.3636976584657892,
+      "avg_hr": 0.13799999999999998,
+      "avg_ndcg": 0.06562151937918721,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "detection_delay",
+          "value": 7,
+          "round": 10
+        },
+        {
+          "client_id": 2,
+          "metric": "detection_delay",
+          "value": 7,
+          "round": 10
+        },
+        {
+          "client_id": 3,
+          "metric": "detection_delay",
+          "value": 7,
+          "round": 10
+        },
+        {
+          "client_id": 7,
+          "metric": "detection_delay",
+          "value": 7,
+          "round": 10
+        },
+        {
+          "client_id": 8,
+          "metric": "detection_delay",
+          "value": 7,
+          "round": 10
+        }
+      ],
+      "round": 10
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2905334417987901,
+      "avg_hr": 0.142,
+      "avg_ndcg": 0.06611790412789864,
+      "drift_events": [
+        {
+          "client_id": 2,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 11
+        },
+        {
+          "client_id": 3,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 11
+        },
+        {
+          "client_id": 4,
+          "metric": "detection_delay",
+          "value": 8,
+          "round": 11
+        },
+        {
+          "client_id": 5,
+          "metric": "detection_delay",
+          "value": 8,
+          "round": 11
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 11
+        },
+        {
+          "client_id": 8,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 11
+        },
+        {
+          "client_id": 9,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 11
+        }
+      ],
+      "round": 11
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.32598886908254,
+      "avg_hr": 0.13,
+      "avg_ndcg": 0.06053389405709346,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 12
+        },
+        {
+          "client_id": 1,
+          "metric": "detection_delay",
+          "value": 9,
+          "round": 12
+        },
+        {
+          "client_id": 4,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 12
+        },
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 12
+        },
+        {
+          "client_id": 6,
+          "metric": "detection_delay",
+          "value": 9,
+          "round": 12
+        }
+      ],
+      "round": 12
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.192464030539932,
+      "avg_hr": 0.14700000000000002,
+      "avg_ndcg": 0.06658615622283501,
+      "drift_events": [
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 13
+        },
+        {
+          "client_id": 2,
+          "metric": "detection_delay",
+          "value": 10,
+          "round": 13
+        },
+        {
+          "client_id": 3,
+          "metric": "detection_delay",
+          "value": 10,
+          "round": 13
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 13
+        },
+        {
+          "client_id": 7,
+          "metric": "detection_delay",
+          "value": 10,
+          "round": 13
+        },
+        {
+          "client_id": 8,
+          "metric": "detection_delay",
+          "value": 10,
+          "round": 13
+        },
+        {
+          "client_id": 9,
+          "metric": "detection_delay",
+          "value": 10,
+          "round": 13
+        }
+      ],
+      "round": 13
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2214306935842731,
+      "avg_hr": 0.144,
+      "avg_ndcg": 0.065530845464942,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "detection_delay",
+          "value": 11,
+          "round": 14
+        },
+        {
+          "client_id": 2,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 14
+        },
+        {
+          "client_id": 3,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 14
+        },
+        {
+          "client_id": 5,
+          "metric": "detection_delay",
+          "value": 11,
+          "round": 14
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 14
+        },
+        {
+          "client_id": 8,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 14
+        }
+      ],
+      "round": 14
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2923376259176353,
+      "avg_hr": 0.139,
+      "avg_ndcg": 0.0648088935707277,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 15
+        },
+        {
+          "client_id": 1,
+          "metric": "detection_delay",
+          "value": 12,
+          "round": 15
+        },
+        {
+          "client_id": 4,
+          "metric": "detection_delay",
+          "value": 12,
+          "round": 15
+        },
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 15
+        },
+        {
+          "client_id": 9,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 15
+        }
+      ],
+      "round": 15
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2936111597494182,
+      "avg_hr": 0.12900000000000003,
+      "avg_ndcg": 0.05630897925458176,
+      "drift_events": [
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 16
+        },
+        {
+          "client_id": 3,
+          "metric": "detection_delay",
+          "value": 13,
+          "round": 16
+        },
+        {
+          "client_id": 4,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 16
+        },
+        {
+          "client_id": 7,
+          "metric": "detection_delay",
+          "value": 13,
+          "round": 16
+        },
+        {
+          "client_id": 8,
+          "metric": "detection_delay",
+          "value": 13,
+          "round": 16
+        }
+      ],
+      "round": 16
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.1878409200795703,
+      "avg_hr": 0.134,
+      "avg_ndcg": 0.06285802863532461,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "detection_delay",
+          "value": 14,
+          "round": 17
+        },
+        {
+          "client_id": 3,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 17
+        },
+        {
+          "client_id": 5,
+          "metric": "detection_delay",
+          "value": 14,
+          "round": 17
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 17
+        },
+        {
+          "client_id": 8,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 17
+        }
+      ],
+      "round": 17
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2878264639640749,
+      "avg_hr": 0.12100000000000002,
+      "avg_ndcg": 0.054383754677594064,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 18
+        },
+        {
+          "client_id": 2,
+          "metric": "detection_delay",
+          "value": 15,
+          "round": 18
+        },
+        {
+          "client_id": 4,
+          "metric": "detection_delay",
+          "value": 15,
+          "round": 18
+        },
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 18
+        },
+        {
+          "client_id": 6,
+          "metric": "detection_delay",
+          "value": 15,
+          "round": 18
+        },
+        {
+          "client_id": 9,
+          "metric": "detection_delay",
+          "value": 15,
+          "round": 18
+        }
+      ],
+      "round": 18
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.245239916899392,
+      "avg_hr": 0.10400000000000001,
+      "avg_ndcg": 0.047141060265810435,
+      "drift_events": [
+        {
+          "client_id": 1,
+          "metric": "detection_delay",
+          "value": 16,
+          "round": 19
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 19
+        },
+        {
+          "client_id": 7,
+          "metric": "detection_delay",
+          "value": 16,
+          "round": 19
+        },
+        {
+          "client_id": 8,
+          "metric": "detection_delay",
+          "value": 16,
+          "round": 19
+        },
+        {
+          "client_id": 9,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 19
+        }
+      ],
+      "round": 19
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.123804050735601,
+      "avg_hr": 0.10900000000000001,
+      "avg_ndcg": 0.05106920762496964,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "detection_delay",
+          "value": 17,
+          "round": 20
+        },
+        {
+          "client_id": 3,
+          "metric": "detection_delay",
+          "value": 17,
+          "round": 20
+        },
+        {
+          "client_id": 4,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 20
+        },
+        {
+          "client_id": 8,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 20
+        }
+      ],
+      "round": 20
+    }
+  }
+]

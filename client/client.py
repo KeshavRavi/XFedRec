@@ -140,34 +140,61 @@ class Client:
         self.model.load_state_dict(state_dict)
         self.model.eval()
         import numpy as np
-
-        #  NEW: use drifted df for this round if available
+        
+        # 1. Determine Data Source (Drifted vs Normal)
         eval_df = getattr(self, "current_round_df", None)
         if eval_df is None:
             eval_df = self.local_data
 
         if eval_df is None or len(eval_df) == 0:
-            return {'loss': 0.0}
+            return {'loss': 0.0, 'hr': 0.0, 'ndcg': 0.0}
 
+        # 2. MSE Calculation (Keep this for Drift Detection stability)
         preds, targets = [], []
+        # Sample smaller set for MSE to keep it fast
         sample_df = eval_df.sample(n=min(200, len(eval_df)))
         
         with torch.no_grad():
             for _, row in sample_df.iterrows():
-                # keep consistent with your training indexing
                 u_id = self._idx(sample_df, "user_id", row["user_id"])
                 i_id = self._idx(sample_df, "item_id", row["item_id"])
-
-
+                
                 u = torch.tensor([u_id], dtype=torch.long, device=self.device)
                 i = torch.tensor([i_id], dtype=torch.long, device=self.device)
-
+                
                 out = self.model(u, i)
                 preds.append(out.item())
                 targets.append(float(row.get('rating', 1.0)))
 
-        mse = ((np.array(preds) - np.array(targets)) ** 2).mean()
-        return {'loss': float(mse)}
+        mse = ((np.array(preds) - np.array(targets)) ** 2).mean() if preds else 0.0
+
+        # 3. Ranking Metrics (HR / NDCG)
+        from utils.metrics import calculate_hr_ndcg
+        
+        # Use the LAST 20% of data as a "Held-out Test Set" for this round
+        n_val = int(len(eval_df) * 0.2)
+        if n_val > 0:
+            val_df = eval_df.iloc[-n_val:]
+            val_loader = self.trainer._make_dataloader(val_df)
+            
+            # Pass n_items from config to avoid model dependency issues
+            n_items = self.model_cfg.get("n_items", 1683)
+            
+            ranking_metrics = calculate_hr_ndcg(
+                self.model, 
+                val_loader, 
+                n_items=n_items, 
+                k=10, 
+                device=self.device
+            )
+        else:
+            ranking_metrics = {"HR@10": 0.0, "NDCG@10": 0.0}
+
+        return {
+            'loss': float(mse),
+            'hr': ranking_metrics["HR@10"],
+            'ndcg': ranking_metrics["NDCG@10"]
+        }
     
     
     def adapt_to_drift(self):

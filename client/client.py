@@ -229,5 +229,62 @@ class Client:
         if df is not None and len(df) > 0 and int(df[col].min()) == 1:
             return int(value) - 1
         return int(value)
+    
+    def generate_explanation(self, user_id, round_id, save_dir="experiments/results/xai_timeline"):
+        """
+        Generates a LIME/SHAP explanation for a specific user's top recommendation.
+        """
+        import os
+        import pandas as pd
+        import numpy as np
+        import torch
+        from client.xai_local import LocalXAI
+        
+        # 1. Find the top recommended item for this user
+        self.model.eval()
+        
+        # Check all items (safe for ML-100k's ~1700 items)
+        n_items = self.model_cfg.get('n_items', 1683)
+        all_items = list(range(n_items))
+        
+        # Prepare batch for prediction
+        u_tensor = torch.tensor([user_id] * len(all_items), dtype=torch.long, device=self.device)
+        i_tensor = torch.tensor(all_items, dtype=torch.long, device=self.device)
+        
+        with torch.no_grad():
+            # Get scores
+            preds = self.model(u_tensor, i_tensor).cpu().numpy().flatten()
+            
+        # Get the item with the highest score
+        top_item = int(np.argmax(preds))
+        
+        # 2. Setup XAI Wrapper
+        # Use a random sample of 50 interactions as "background" for SHAP/LIME
+        # This tells the explainer what "average" looks like.
+        if len(self.local_data) > 50:
+            bg_data = self.local_data[["user_id", "item_id"]].sample(n=50, replace=False)
+        else:
+            bg_data = self.local_data[["user_id", "item_id"]]
+        
+        xai = LocalXAI(
+            model=self.model,
+            feature_names=["user_id", "item_id"],
+            background_data=bg_data,
+            device=self.device,
+            out_dir=save_dir
+        )
+        
+        # 3. Generate & Save Explanation
+        print(f"[Client {self.client_id}] 🔍 XAI: Explaining why User {user_id} -> Item {top_item} (Round {round_id})")
+        
+        try:
+            xai.explain_instance(
+                background_data=None, # Already set in __init__
+                instance=np.array([user_id, top_item]),
+                client_id=self.client_id,
+                round_id=round_id
+            )
+        except Exception as e:
+            print(f"[Client {self.client_id}] ⚠️ XAI Failed: {e}")
 
 

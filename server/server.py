@@ -286,6 +286,19 @@ class Server:
     def run_rounds(self, num_rounds=5):
         """Main federated training loop with metric logging."""
         all_metrics = []
+        
+        # Setup XAI Output
+        xai_dir = "experiments/results/xai_timeline"
+        import os
+        os.makedirs(xai_dir, exist_ok=True)
+        
+        # Pick a target user from Client 0 to track consistently
+        target_client_idx = 0
+        target_user = 1 # Default
+        
+        # Try to pick a valid user ID from Client 0's actual data
+        if len(self.clients) > 0 and not self.clients[target_client_idx].local_data.empty:
+             target_user = int(self.clients[target_client_idx].local_data['user_id'].iloc[0])
 
         for r in range(num_rounds):
             print(f"[Server] Starting round {r + 1}/{num_rounds}")
@@ -317,6 +330,15 @@ class Server:
             metrics = self.evaluate_global(current_round=r + 1)
             metrics["round"] = r + 1
             all_metrics.append(metrics)
+            
+            # --- 3. XAI Trigger (Section G) ---
+            # Run XAI at: Round 1 (Start), 4 (Drift), 8 (Adaptation), 12 (Stable), 20 (End)
+            if (r + 1) in [1, 4, 8, 12, 16, 20]:
+                self.clients[target_client_idx].generate_explanation(
+                    user_id=target_user, 
+                    round_id=r + 1,
+                    save_dir=xai_dir
+                )
 
             print(f"[Server] Round {r + 1} metrics: {metrics}")
             print(f"[Server] Selected {len(selected)} clients out of {len(self.clients)}")

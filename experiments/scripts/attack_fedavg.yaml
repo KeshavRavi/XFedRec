@@ -1,0 +1,26 @@
+data:
+  movielens_path: "data/ml-100k.csv"
+
+model:
+  type: "ncf"
+  n_users: 944
+  n_items: 1683
+  emb_size: 32
+  local_epochs: 1
+  local_batch_size: 64
+
+federation:
+  n_clients: 10
+  frac: 1.0              # Select ALL 10 clients so the 2 attackers always participate
+  rounds: 10
+  
+  #  THE VULNERABILITY
+  aggregation: fedavg    # Weak against attacks
+  byzantine_clients: 2   # 2 Malicious clients (multiply updates by 10x)
+  max_update_norm: null
+
+drift:
+  enabled: false         # Turn off drift to isolate the attack variable
+
+dp:
+  enabled: false

@@ -1,0 +1,102 @@
+[
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 6.027266364872392,
+      "avg_hr": 0.34900000000000003,
+      "avg_ndcg": 0.17158593869072103,
+      "drift_events": [],
+      "round": 1
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.784086384806444,
+      "avg_hr": 0.354,
+      "avg_ndcg": 0.1718955010253953,
+      "drift_events": [],
+      "round": 2
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.5478815327866766,
+      "avg_hr": 0.311,
+      "avg_ndcg": 0.1459973168706615,
+      "drift_events": [],
+      "round": 3
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.4498116723462737,
+      "avg_hr": 0.27,
+      "avg_ndcg": 0.12822107438164249,
+      "drift_events": [],
+      "round": 4
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.3996271149235304,
+      "avg_hr": 0.30300000000000005,
+      "avg_ndcg": 0.13910951503598576,
+      "drift_events": [],
+      "round": 5
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.371319591877894,
+      "avg_hr": 0.28700000000000003,
+      "avg_ndcg": 0.13435711030221098,
+      "drift_events": [],
+      "round": 6
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.3469621024546006,
+      "avg_hr": 0.271,
+      "avg_ndcg": 0.12859597056258001,
+      "drift_events": [],
+      "round": 7
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.320615312796987,
+      "avg_hr": 0.25600000000000006,
+      "avg_ndcg": 0.1232796825215727,
+      "drift_events": [],
+      "round": 8
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2888890426329258,
+      "avg_hr": 0.263,
+      "avg_ndcg": 0.1275782938914338,
+      "drift_events": [],
+      "round": 9
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 1.2713580552615396,
+      "avg_hr": 0.263,
+      "avg_ndcg": 0.12321939507247985,
+      "drift_events": [],
+      "round": 10
+    }
+  }
+]

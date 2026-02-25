@@ -1,0 +1,216 @@
+[
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 8.401966069547077,
+      "avg_hr": 0.11499999999999999,
+      "avg_ndcg": 0.05269788771970437,
+      "drift_events": [],
+      "round": 1
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 8.225154075268538,
+      "avg_hr": 0.10899999999999999,
+      "avg_ndcg": 0.04920527899837114,
+      "drift_events": [],
+      "round": 2
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 7.543086358116152,
+      "avg_hr": 0.10499999999999998,
+      "avg_ndcg": 0.04922468393311313,
+      "drift_events": [],
+      "round": 3
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 107750.79368845583,
+      "avg_hr": 0.089,
+      "avg_ndcg": 0.0379521308079447,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 4
+        }
+      ],
+      "round": 4
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 47865.782474558924,
+      "avg_hr": 0.09899999999999999,
+      "avg_ndcg": 0.04509246093638318,
+      "drift_events": [],
+      "round": 5
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 2381.9537500055976,
+      "avg_hr": 0.10200000000000001,
+      "avg_ndcg": 0.044589436872064084,
+      "drift_events": [
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 6
+        }
+      ],
+      "round": 6
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 19.220201669060295,
+      "avg_hr": 0.11000000000000001,
+      "avg_ndcg": 0.04686821459582137,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 7
+        },
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 7
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 7
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 7
+        }
+      ],
+      "round": 7
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 23.38231928934479,
+      "avg_hr": 0.089,
+      "avg_ndcg": 0.03888915868148632,
+      "drift_events": [
+        {
+          "client_id": 3,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        },
+        {
+          "client_id": 8,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        },
+        {
+          "client_id": 9,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 8
+        }
+      ],
+      "round": 8
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 10.733213644580909,
+      "avg_hr": 0.10400000000000001,
+      "avg_ndcg": 0.04962393284328402,
+      "drift_events": [
+        {
+          "client_id": 5,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 9
+        }
+      ],
+      "round": 9
+    }
+  },
+  {
+    "event": "evaluate",
+    "metrics": {
+      "avg_loss": 7.700095103127748,
+      "avg_hr": 0.123,
+      "avg_ndcg": 0.06060895826735472,
+      "drift_events": [
+        {
+          "client_id": 0,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 10
+        },
+        {
+          "client_id": 1,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 10
+        },
+        {
+          "client_id": 2,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 10
+        },
+        {
+          "client_id": 6,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 10
+        },
+        {
+          "client_id": 7,
+          "metric": "recovery_event",
+          "value": 1,
+          "round": 10
+        }
+      ],
+      "round": 10
+    }
+  }
+]

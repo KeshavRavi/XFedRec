@@ -40,6 +40,19 @@ class Server:
             ema_alpha=drift_cfg.get("ema_alpha", 0.3)
         )
         self.drifted_clients = set()
+        
+        # --- DP Setup ---
+        from utils.privacy import PrivacyAccountant
+        dp_cfg = self.config.get("dp", {})
+        self.dp_enabled = dp_cfg.get("enabled", False)
+        self.noise_multiplier = dp_cfg.get("noise_multiplier", 0.0)
+        self.max_norm = self.config['federation'].get('max_update_norm', 1.0)
+        
+        self.accountant = PrivacyAccountant(
+            n_total_clients=len(self.clients),
+            noise_multiplier=self.noise_multiplier,
+            target_delta=dp_cfg.get("target_delta", 1e-3)
+        )
             
 
     # --------------------------------------------------
@@ -123,8 +136,14 @@ class Server:
     def aggregate(self, updates, client_ids):
         """
         Aggregate client updates using robust aggregation,
-        excluding drifted clients when possible.
+        excluding drifted clients when possible, and apply DP noise if enabled.
         """
+        import torch  # Needed for DP noise generation
+        
+        # Import the standalone aggregate function under a different name
+        # to avoid confusing Python with this class method named 'aggregate'.
+        from .aggregator import aggregate as base_aggregate
+        
         method = self.config['federation'].get('aggregation', 'fedavg')
         f = self.config['federation'].get('byzantine_clients', 1)
         
@@ -133,6 +152,7 @@ class Server:
         filtered_updates = []
         filtered_client_ids = []
 
+        # 1. Filter out drifted clients
         for upd, cid in zip(updates, client_ids):
             if cid in self.drifted_clients:
                 print(f"[Server] Excluding Client {cid} due to confirmed drift")
@@ -145,6 +165,7 @@ class Server:
             print("[Server] All clients drifted — using all updates")
             filtered_updates = updates
             filtered_client_ids = client_ids
+            
         if not filtered_updates:
             raise RuntimeError("No updates available for aggregation")
 
@@ -153,26 +174,52 @@ class Server:
             f"using {method}"
         )
 
+        # 2. Perform Aggregation
         if method == "fedq":
-            # Use qualities collected during collect_updates()
             qualities = getattr(self, "qualities", None)
             if qualities is None or len(qualities) != len(updates):
-                    qualities = [1.0] * len(updates)
+                qualities = [1.0] * len(updates)
 
-            # Filter qualities alongside updates
             filtered_qualities = []
             for cid, q in zip(client_ids, qualities):
                 if cid in self.drifted_clients:
                     continue
                 filtered_qualities.append(q)
-            # Safety fallback
+                
             if len(filtered_qualities) != len(filtered_updates):
                 filtered_qualities = [1.0] * len(filtered_updates)
 
-            return fedq_aggregate(filtered_updates, filtered_qualities)
+            from .robust_aggregation import fedq_aggregate
+            agg_result = fedq_aggregate(filtered_updates, filtered_qualities)
+        else:
+            agg_result = base_aggregate(filtered_updates, method=method, f=f)
+            
+        # 3. Apply Differential Privacy (DP) Noise
+        dp_cfg = self.config.get("dp", {})
+        dp_enabled = dp_cfg.get("enabled", False)
+        noise_multiplier = dp_cfg.get("noise_multiplier", 0.0)
+        max_norm = self.config['federation'].get('max_update_norm', 1.0)
         
-        # IMPORTANT: for non-fedq methods, return normal aggregator result
-        return aggregate(filtered_updates, method=method, f=f)
+        if dp_enabled and noise_multiplier > 0:
+            # Update the accountant if initialized in __init__
+            if hasattr(self, 'accountant'):
+                self.accountant.step(len(filtered_client_ids))
+                current_eps = self.accountant.get_epsilon()
+                print(f"[Privacy] 🛡️ DP Active: Adding noise. Epsilon spent: {current_eps:.4f}")
+            else:
+                print("[Privacy] 🛡️ DP Active: Adding noise.")
+                
+            # Calculate standard deviation for Gaussian noise
+            # Formula: (noise_multiplier * clipping_threshold) / number_of_clients
+            noise_std = (noise_multiplier * max_norm) / len(filtered_client_ids)
+            
+            # Inject noise directly into the aggregated weights
+            for k in agg_result.keys():
+                noise = torch.randn_like(agg_result[k].float()) * noise_std
+                # Add noise and cast back to the original dtype
+                agg_result[k] = (agg_result[k] + noise).to(agg_result[k].dtype)
+
+        return agg_result
     # --------------------------------------------------
     # Global Model Update
     # --------------------------------------------------

@@ -17,11 +17,15 @@ from data.loader import dataset_to_user_item_lists, load_movielens_100k
 from data.partition import partition_by_user, partition_by_time, partition_non_iid_dirichlet
 
 from xai.lime_shap_wrapper import XAIExplainer
-
+from utils.seed import set_global_seed
 
 def run_experiment(config_path='experiments/scripts/experiment_config.yaml', return_server=False):
     # Load config
     cfg = load_config(config_path)
+    
+    # --- Lock the Seed ---
+    seed_value = cfg.get('seed', 42) # Default to 42 if not specified
+    set_global_seed(seed_value)
 
     # Load dataset
     df = load_movielens_100k(cfg['data']['movielens_path'])

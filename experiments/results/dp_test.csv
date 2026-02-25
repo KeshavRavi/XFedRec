@@ -1,0 +1,11 @@
+avg_loss,avg_hr,avg_ndcg,drift_events,round
+8.401966069547077,0.11499999999999999,0.05269788771970437,[],1
+8.225154075268538,0.10899999999999999,0.04920527899837114,[],2
+7.543086358116152,0.10499999999999998,0.04922468393311313,[],3
+107750.79368845583,0.089,0.0379521308079447,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 4}]",4
+47865.782474558924,0.09899999999999999,0.04509246093638318,[],5
+2381.9537500055976,0.10200000000000001,0.044589436872064084,"[{'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 6}]",6
+19.220201669060295,0.11000000000000001,0.04686821459582137,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 7}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 7}]",7
+23.38231928934479,0.089,0.03888915868148632,"[{'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 8}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 8}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 8}]",8
+10.733213644580909,0.10400000000000001,0.04962393284328402,"[{'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 9}]",9
+7.700095103127748,0.123,0.06060895826735472,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 10}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 10}]",10

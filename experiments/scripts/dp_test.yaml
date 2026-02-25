@@ -1,0 +1,26 @@
+seed: 42
+data:
+  movielens_path: "data/ml-100k.csv"
+
+model:
+  type: "ncf"
+  n_users: 944
+  n_items: 1683
+  emb_size: 32
+  local_epochs: 1
+  local_batch_size: 64
+
+federation:
+  n_clients: 10
+  frac: 0.5              # Sample 5 clients per round
+  rounds: 10
+  aggregation: fedavg
+  max_update_norm: 1.0   # 1️ DP Requirement: Clipping Bound (C)
+
+drift:
+  enabled: false
+
+dp:
+  enabled: true          # 2️ DP Requirement: Enable Privacy
+  noise_multiplier: 1.0  # 3️ DP Requirement: Noise Scale (Sigma)
+  target_delta: 0.001    # 4️ DP Requirement: Delta

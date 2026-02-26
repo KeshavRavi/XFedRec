@@ -1,3 +1,4 @@
+seed: 42
 data:
   movielens_path: "data/ml-100k.csv"
 model:
@@ -9,7 +10,7 @@ model:
 federation:
   n_clients: 10
   rounds: 20
-  frac: 1.0             # <--- ADDED THIS
+  frac: 1.0            
   aggregation: median
   byzantine_clients: 2
   max_update_norm: 5.0

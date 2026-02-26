@@ -1,3 +1,4 @@
+seed: 42
 data:
   movielens_path: "data/ml-100k.csv"
 model:

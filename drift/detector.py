@@ -64,7 +64,7 @@ class DriftDetector:
         # DEBUG PRINT
         if round_id is not None and round_id >= 4 and abs(z_score) > 2.0:
              if drift_detected: # Only print when something interesting happens
-                 print(f"   [ DETECTOR C{client_id}] ⚠️ Z-Score spiked to {z_score:.2f} (Loss {raw_loss:.2f})")
+                 print(f"   [ DETECTOR C{client_id}]  Z-Score spiked to {z_score:.2f} (Loss {raw_loss:.2f})")
 
         # 6. Freeze Stats Logic
         if self.drift_states[client_id] == "NORMAL":

@@ -11,11 +11,11 @@ federation:
   n_clients: 10
   rounds: 20
   frac: 1.0             # <--- ADDED THIS
-  aggregation: median
+  aggregation: fedavg
   byzantine_clients: 2
   max_update_norm: 5.0
 drift:
-  enabled: true
+  enabled: false
   type: sudden
   round: 3
   # Detector Settings

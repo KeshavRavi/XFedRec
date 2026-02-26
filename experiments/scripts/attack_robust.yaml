@@ -15,7 +15,7 @@ federation:
   frac: 1.0
   rounds: 10
   
-  # 🛡️ THE DEFENSE
+  #  THE DEFENSE
   aggregation: median    # Robust against outliers
   byzantine_clients: 2   # Same 2 attackers
   max_update_norm: null

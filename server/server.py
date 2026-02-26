@@ -213,9 +213,9 @@ class Server:
             if hasattr(self, 'accountant'):
                 self.accountant.step(len(filtered_client_ids))
                 current_eps = self.accountant.get_epsilon()
-                print(f"[Privacy] 🛡️ DP Active: Adding noise. Epsilon spent: {current_eps:.4f}")
+                print(f"[Privacy]  DP Active: Adding noise. Epsilon spent: {current_eps:.4f}")
             else:
-                print("[Privacy] 🛡️ DP Active: Adding noise.")
+                print("[Privacy]  DP Active: Adding noise.")
                 
             # Calculate standard deviation for Gaussian noise
             # Formula: (noise_multiplier * clipping_threshold) / number_of_clients
@@ -286,7 +286,7 @@ class Server:
             
             # --- Re-inserting the drift logic snippet for context ---
             if d_info["adwin_drift"] and d_info["state"] == "NORMAL":
-                print(f"[Drift] 🚨 DETECTED for Client {c.client_id} at Round {current_round}")
+                print(f"[Drift]  DETECTED for Client {c.client_id} at Round {current_round}")
                 c.adapt_to_drift()
                 self.drift_detector.confirm_drift(c.client_id)
                 self.drifted_clients.add(c.client_id)
@@ -305,7 +305,7 @@ class Server:
                 baseline = d_info["baseline"]
                 # 1.2x threshold for recovery
                 if loss <= baseline * 1.2: 
-                    print(f"[Drift] ✅ Client {c.client_id} RECOVERED at Round {current_round}")
+                    print(f"[Drift]  Client {c.client_id} RECOVERED at Round {current_round}")
                     self.drifted_clients.discard(c.client_id)
                     self.drift_detector.signal_recovery(c.client_id)
                     drift_metrics_log.append({

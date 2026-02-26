@@ -27,4 +27,4 @@ def set_global_seed(seed: int = 42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     
-    print(f"[Setup] 🔒 Global random seed locked to: {seed}")
+    print(f"[Setup]  Global random seed locked to: {seed}")

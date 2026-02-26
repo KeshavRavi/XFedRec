@@ -1,21 +1,21 @@
 avg_loss,avg_hr,avg_ndcg,drift_events,round
-5.292907893923438,0.39100000000000007,0.19511471829718796,[],1
-5.12206931083825,0.28500000000000003,0.13971278935970302,[],2
-2.236170775077905,0.261,0.12882458869868477,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 1, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 2, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 3, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 4, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 5, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 6, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 7, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 8, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 9, 'metric': 'detection_delay', 'value': 0, 'round': 3}]",3
-1.4766407922267337,0.19899999999999998,0.09591387745060642,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 4}]",4
-1.3314866582426044,0.183,0.09115500012486534,[],5
-1.3291407143478506,0.199,0.10376738109126801,[],6
-1.3128619635009315,0.16999999999999998,0.08675255844752253,[],7
-1.3265232792886272,0.164,0.08454638843358196,[],8
-1.3101196677911848,0.192,0.09749432637416576,[],9
-1.3020159288775317,0.197,0.09257112699931885,[],10
-1.310856934768126,0.44200000000000006,0.3489053878812481,[],11
-1.3231298677146452,0.442,0.35352233005405326,[],12
-1.3088358742307815,0.775,0.7136856214089333,[],13
-1.2798320165539567,0.8099999999999999,0.8001564823687881,[],14
-1.2882182005845961,0.26400000000000007,0.24172539807086418,[],15
-1.2873705243364697,0.20800000000000002,0.11262636508377077,[],16
-1.2844928235638167,0.182,0.09557609882152532,[],17
-1.2769995098434728,0.19499999999999998,0.09909173943767122,[],18
-1.2877759440192174,0.215,0.11959936282298829,[],19
-1.2705348183883116,0.197,0.09500310932963366,[],20
+5.319274084247189,0.39300000000000007,0.20160237653710725,[],1
+5.123251211014267,0.321,0.1538344548107106,[],2
+2.1357799632906294,0.31099999999999994,0.15306392584611075,"[{'client_id': 0, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 1, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 2, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 3, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 4, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 5, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 6, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 7, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 8, 'metric': 'detection_delay', 'value': 0, 'round': 3}, {'client_id': 9, 'metric': 'detection_delay', 'value': 0, 'round': 3}]",3
+1.4756050655927102,0.23500000000000001,0.11238351395380357,"[{'client_id': 0, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 1, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 2, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 3, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 4, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 5, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 6, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 7, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 8, 'metric': 'recovery_event', 'value': 1, 'round': 4}, {'client_id': 9, 'metric': 'recovery_event', 'value': 1, 'round': 4}]",4
+1.3292853051041016,0.179,0.09354976950380658,[],5
+1.3385800110519437,0.189,0.09450791617496597,[],6
+1.3225423313133848,0.209,0.10899116471992554,[],7
+1.330562515118717,0.2,0.10312976385603008,[],8
+1.3074897733417412,0.202,0.10260303998776314,[],9
+1.3202298710163973,0.183,0.09494572704473853,[],10
+1.315559135410752,0.263,0.16876806646225467,[],11
+1.314601729557506,0.484,0.35951862426469944,[],12
+1.299472846696567,0.623,0.5278287521435849,[],13
+1.3039567370766112,0.942,0.9140341529964304,[],14
+1.290456764292122,0.7489999999999999,0.7286774174321442,[],15
+1.2835801571319316,0.263,0.2499840781311037,[],16
+1.2893881475029665,0.231,0.12697413577902078,[],17
+1.2865117112501954,0.20600000000000002,0.10276241749968948,[],18
+1.2912286967648947,0.209,0.1687188923217055,[],19
+1.2830711395432175,0.20099999999999998,0.11785687030461212,[],20

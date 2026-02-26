@@ -283,7 +283,7 @@ class Client:
         )
         
         # 3. Generate & Save Explanation
-        print(f"[Client {self.client_id}] 🔍 XAI: Explaining why User {user_id} -> Item {top_item} (Round {round_id})")
+        print(f"[Client {self.client_id}]  XAI: Explaining why User {user_id} -> Item {top_item} (Round {round_id})")
         
         try:
             xai.explain_instance(
@@ -293,6 +293,6 @@ class Client:
                 round_id=round_id
             )
         except Exception as e:
-            print(f"[Client {self.client_id}] ⚠️ XAI Failed: {e}")
+            print(f"[Client {self.client_id}]  XAI Failed: {e}")
 
 

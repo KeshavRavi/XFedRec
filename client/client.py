@@ -2,6 +2,7 @@
 
 import torch
 import copy
+from utils.compression import sparsify_update
 from .local_trainer import LocalTrainer
 from utils.dp import add_dp_to_state_dict
 from data.drift_simulator import (
@@ -49,21 +50,20 @@ class Client:
         self.global_state = state_dict
         self.model.load_state_dict(state_dict)
 
-    def local_update(self, round_id=0):
+    def local_update(self, round_id=0, compression_rate=0.0): # <-- ADDED PARAMETER
         """
-        Perform local training and return local model update.
+        Perform local training, apply optional compression, and return local model update.
         """
         # 0️ Drift Simulation
         df = self.drifted_data if self.drifted_data is not None else self.local_data
         drift_cfg = self.drift_cfg
 
         if drift_cfg.get("enabled", False):
-            
             if drift_cfg.get("type") == "sudden":
-                drift_round=drift_cfg.get("round", 3)
+                drift_round = drift_cfg.get("round", 3)
                 
-                #  apply sudden drift ONCE per client (first time it reaches drift_round)
-                if (not self.sudden_drift_done) and (round_id >= drift_round):    
+                # apply sudden drift ONCE per client (first time it reaches drift_round)
+                if (not getattr(self, "sudden_drift_done", False)) and (round_id >= drift_round):    
                     df = simulate_sudden_drift(
                         df=df,
                         drift_round=drift_round,
@@ -74,7 +74,7 @@ class Client:
                     print(f"\n[Client {self.client_id}]   SUDDEN DRIFT INJECTED at Round {round_id} \n")
 
             elif drift_cfg.get("type") == "incremental":
-                drift_start=drift_cfg.get("round", 2)
+                drift_start = drift_cfg.get("round", 2)
                 if round_id >= drift_start:
                     df = simulate_incremental_drift(
                         df=df,
@@ -91,11 +91,11 @@ class Client:
             df_train["item_id"] = df_train["item_id"] - 1
 
         # 1️ Local training
-        train_loss=self.trainer.train(df_train,epochs=self.model_cfg.get('local_epochs', 1))
+        train_loss = self.trainer.train(df_train, epochs=self.model_cfg.get('local_epochs', 1))
         self.current_round_df = df_train
         self.drifted_data = df_train if self.drifted_data is not None else None
 
-        # 2️  Client-side XAI 
+        # 2️ Client-side XAI 
         if self.model_cfg.get("enable_xai", False):
             from .xai_local import LocalXAI
 
@@ -118,17 +118,25 @@ class Client:
                 )
 
         # 3️ Prepare model update
+        import copy
         state = copy.deepcopy(self.model.state_dict())
 
-        # 4️ Optional DP
-        dp_cfg = self.dp_cfg
+        # 4️ Optional DP (Your existing local DP)
+        dp_cfg = getattr(self, "dp_cfg", {})
         if dp_cfg.get('enabled', False):
+            # Assuming add_dp_to_state_dict is defined elsewhere in your file
             state = add_dp_to_state_dict(
                 state,
                 sigma=dp_cfg.get('sigma', 0.1)
             )
+            
+        # --- 5️ NEW: Optional Compression (Section F) ---
+        if compression_rate > 0.0:
+            from utils.compression import sparsify_update
+            state = sparsify_update(state, compression_rate)
+        # ------------------------------------------------
 
-        return state,{
+        return state, {
             "train_loss": train_loss,
             "n": len(df)
         }

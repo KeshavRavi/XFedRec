@@ -1,0 +1,27 @@
+seed: 42
+
+data:
+  movielens_path: "data/ml-100k.csv"
+
+model:
+  type: "ncf"
+  n_users: 944
+  n_items: 1683
+  emb_size: 32
+  local_epochs: 1
+  local_batch_size: 64
+
+federation:
+  n_clients: 10
+  frac: 1.0
+  rounds: 10
+  aggregation: fedavg
+  
+  # 📉 THE COMPRESSION
+  compression_rate: 0.8  # Drop 80% of the weights sent over the network!
+
+drift:
+  enabled: false
+
+dp:
+  enabled: false

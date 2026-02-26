@@ -72,9 +72,14 @@ class Server:
         client_ids = []
         qualities = []  #  FedQ quality scores
         max_norm = self.config['federation'].get('max_update_norm', None)
+        
+        # --- NEW: Get compression rate from config (Default to 0.0 if not set) ---
+        comp_rate = self.config['federation'].get('compression_rate', 0.0)
 
         for c in selected_clients:
-            upd,metrics = c.local_update(round_id=round_id)
+            # --- NEW: Pass compression_rate to the client ---
+            upd, metrics = c.local_update(round_id=round_id, compression_rate=comp_rate)
+            
             if upd is None:
                 print(f"[Server] Client {c.client_id} returned upd=None")
                 continue
@@ -95,11 +100,14 @@ class Server:
             qualities.append(q)
 
             if max_norm is not None:
+                from utils.norms import clip_by_l2
                 upd = clip_by_l2(upd, max_norm)
                 # Debug: check norm
                 total_norm = 0.0
                 for k, v in upd.items():
-                    total_norm += (v.float() ** 2).sum().item()
+                    # Safely handle only floating point weights for norm calculation
+                    if v.is_floating_point():
+                        total_norm += (v.float() ** 2).sum().item()
                 total_norm = total_norm ** 0.5
                 print(f"[Server] Client {c.client_id} update norm after clipping: {total_norm:.4f} (max {max_norm})")
 
@@ -108,7 +116,7 @@ class Server:
             
         self.qualities = qualities    
         print(f"[Server] Collected {len(updates)} updates")
-        return updates,client_ids
+        return updates, client_ids
     # --------------------------------------------------
     # Byzantine client simulation
     # --------------------------------------------------
